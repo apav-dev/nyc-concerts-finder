@@ -1,17 +1,23 @@
+/* eslint-disable no-var */
 import { Application, Router } from "https://deno.land/x/oak@v11.1.0/mod.ts";
-import { getRandomString } from "./utils.ts";
-import { serve } from "https://deno.land/std@0.178.0/http/server.ts";
 
 const app = new Application();
 const router = new Router();
 
 const client_id = "2b0ff51518114cf89178f38905b05dfc";
+const client_secret = "26d51b3f2950451998c7454e316851fe";
 const redirect_uri = "http://localhost:8000/callback";
-const state = getRandomString(16);
 const scopes = ["user-read-private", "user-read-email", "user-library-read"];
 
 router.get("/login", (ctx) => {
+  let state = ctx.request.url.searchParams.get("state");
+
   const url = new URL(`https://accounts.spotify.com/authorize`);
+
+  if (state === null) {
+    state = "http://localhost:5173";
+  }
+
   url.searchParams.append("client_id", client_id);
   url.searchParams.append("response_type", "code");
   url.searchParams.append("redirect_uri", redirect_uri);
@@ -57,8 +63,9 @@ router.get("/callback", async (ctx) => {
     });
 
     const authData = await authResponse.json();
+    const authDataString = JSON.stringify(authData);
 
-    ctx.response.body = authData;
+    ctx.response.redirect(state + "?tokenData=" + authDataString);
   }
 });
 
