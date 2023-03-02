@@ -96,7 +96,7 @@ const Concert: Template<TemplateRenderProps> = ({
               <div className="mt-3">
                 <h2 className="sr-only">Product information</h2>
                 {/* TODO: Turn into link to location page  */}
-                <p className="tracking-tight text-white">{venue.name}</p>
+                <p className="tracking-tight text-white">{venue?.name}</p>
                 <p className="tracking-light text-white">{formatedDate}</p>
               </div>
               {/* divider component */}
