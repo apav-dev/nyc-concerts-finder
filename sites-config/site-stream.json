@@ -1,0 +1,12 @@
+{
+  "$id": "site-entity",
+  "filter": {
+    "entityIds": ["site"]
+  },
+  "source": "knowledgeGraph",
+  "fields": ["c_logo"],
+  "localization": {
+    "locales": ["en"],
+    "primary": false
+  }
+}
