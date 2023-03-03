@@ -14,7 +14,7 @@ export const main = (argumentJson) => {
   let state = urlParams.get("state");
   if (!state) {
     // TODO: replace with prod url
-    state = "";
+    state = "test";
   }
 
   spotifyUrl.searchParams.append("client_id", client_id);
