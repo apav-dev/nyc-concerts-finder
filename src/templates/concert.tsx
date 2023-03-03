@@ -12,6 +12,7 @@ import "../index.css";
 import PageLayout from "../layouts/PageLayout";
 import { ComplexImageType, Image } from "@yext/pages/components";
 import ArtistItem from "../components/ArtistItem";
+import ArtistSection from "../components/ArtistSection";
 
 export const config: TemplateConfig = {
   stream: {
@@ -76,6 +77,8 @@ const Concert: Template<TemplateRenderProps> = ({
     timeZoneName: "short",
   });
 
+  console.log("document", document);
+
   return (
     <PageLayout logo={_site.c_logo}>
       {artistImage && (
@@ -105,6 +108,12 @@ const Concert: Template<TemplateRenderProps> = ({
                   Artists
                 </h2>
                 <div className="mt-4">
+                  <ArtistSection
+                    artistIds={document.c_artists?.map((artist) => {
+                      // id is in the form of "spotify:artist:1234". We only want the last part
+                      return artist.c_spotifyId.split(":").pop();
+                    })}
+                  />
                   {document.c_artists?.map((artist, idx) => (
                     <ArtistItem key={idx} artist={artist} />
                   ))}
