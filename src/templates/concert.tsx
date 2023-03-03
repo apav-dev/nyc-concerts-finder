@@ -111,7 +111,7 @@ const Concert: Template<TemplateRenderProps> = ({
                   <ArtistSection
                     artistIds={document.c_artists?.map((artist) => {
                       // id is in the form of "spotify:artist:1234". We only want the last part
-                      return artist.c_spotifyId.split(":").pop();
+                      return artist.c_spotifyId?.split(":").pop();
                     })}
                   />
                   {document.c_artists?.map((artist, idx) => (
