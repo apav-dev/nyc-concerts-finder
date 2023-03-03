@@ -23,7 +23,7 @@ export const main = (argumentJson) => {
   return {
     statusCode: 302,
     headers: {
-      "Location": spotifyUrl.toString(),
+      Location: spotifyUrl,
       "X-Yext-Test": "Example header",
     },
     body: "",
