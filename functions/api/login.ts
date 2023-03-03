@@ -22,9 +22,9 @@ export const main = (argumentJson) => {
   //return redirect to the spotify url
   return {
     statusCode: 302,
-    headers: {
+    headers: JSON.stringify({
       Location: spotifyUrl,
-    },
+    }),
     body: "",
   };
 };
