@@ -1,4 +1,4 @@
-import * as UrlLib from "https://deno.land/std/node/url.ts";
+// import * as UrlLib from "https://deno.land/std/node/url.ts";
 
 export const main = async (argumentJson) => {
   const requestURL = argumentJson["requestUrl"];
@@ -6,8 +6,8 @@ export const main = async (argumentJson) => {
   const code = urlParams.get("code");
   const state = urlParams.get("state");
 
-  const purl = UrlLib.parse(requestURL);
-  const redirect_uri = `${purl.protocol}//${purl.host}/callback`;
+  // const purl = UrlLib.parse(requestURL);
+  // const redirect_uri = `${purl.protocol}//${purl.host}/callback`;
 
   if (state === null) {
     return {
@@ -24,7 +24,7 @@ export const main = async (argumentJson) => {
       url: "https://accounts.spotify.com/api/token",
       form: {
         code: code,
-        redirect_uri: redirect_uri,
+        redirect_uri: "https://adoringly-alive-calf.pgsdemo.com/callback",
         grant_type: "authorization_code",
       },
       headers: {
@@ -49,7 +49,7 @@ export const main = async (argumentJson) => {
 
     const authData = await authResponse.json();
     const authDataString = JSON.stringify(authData);
-    const redirectUrlStr = `${redirect_uri}?tokenData=${authDataString}`;
+    const redirectUrlStr = `${state}?tokenData=${authDataString}`;
 
     return {
       statusCode: 302,
