@@ -9,10 +9,10 @@ export const main = (argumentJson) => {
 
   const spotifyUrl = new URL(`https://accounts.spotify.com/authorize`);
 
-  let redirect_uri = "https://adoringly-alive-calf.pgsdemo.com/callback";
-  if (argumentJson["headers"]["X-Forwarded-Host"]) {
-    redirect_uri = `https://${argumentJson["headers"]["X-Bot-Score"]}/callback`;
-  }
+  const redirect_uri = "https://adoringly-alive-calf.pgsdemo.com/callback";
+  // if (argumentJson["headers"]["X-Forwarded-Host"]) {
+  //   redirect_uri = `https://${argumentJson["headers"]["X-Bot-Score"]}/callback`;
+  // }
 
   let state = urlParams.get("state");
   if (!state) {
