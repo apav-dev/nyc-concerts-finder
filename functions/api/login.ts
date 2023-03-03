@@ -1,4 +1,4 @@
-import * as UrlLib from "https://deno.land/std/node/url.ts";
+// import * as UrlLib from "https://deno.land/std/node/url.ts";
 const client_id = "2b0ff51518114cf89178f38905b05dfc";
 const scopes = ["user-read-private", "user-read-email", "user-library-read"];
 
@@ -7,8 +7,9 @@ export const main = (argumentJson) => {
   const urlParams = new URLSearchParams(requestURL);
   const spotifyUrl = new URL(`https://accounts.spotify.com/authorize`);
 
-  const purl = UrlLib.parse(requestURL);
-  const redirect_uri = `${purl.protocol}//${purl.host}/callback`;
+  // const purl = UrlLib.parse(requestURL);
+  // const redirect_uri = `${purl.protocol}//${purl.host}/callback`;
+  const redirect_uri = "https://adoringly-alive-calf.pgsdemo.com/callback";
 
   let state = urlParams.get("state");
   if (!state) {
