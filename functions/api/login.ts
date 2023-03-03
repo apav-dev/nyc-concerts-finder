@@ -23,7 +23,7 @@ export const main = (argumentJson) => {
   return {
     statusCode: 302,
     headers: JSON.stringify({
-      Location: spotifyUrl,
+      "Location": spotifyUrl.toString(),
     }),
     body: "",
   };
