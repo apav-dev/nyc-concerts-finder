@@ -1,5 +1,3 @@
-// import * as UrlLib from "https://deno.land/std/node/url.ts";
-
 export const main = async (argumentJson) => {
   const requestURL = argumentJson["requestUrl"];
   const searchParams = new URLSearchParams();
@@ -13,24 +11,22 @@ export const main = async (argumentJson) => {
   const state = searchParams.get("state");
   const code = searchParams.get("code");
 
-  // const purl = UrlLib.parse(requestURL);
-  // const redirect_uri = `${purl.protocol}//${purl.host}/callback`;
-
   if (state === null) {
     return {
       statusCode: 400,
-      body: "Line 15",
+      body: "Bad Request: No state provided",
     };
   } else if (code === null) {
     return {
       statusCode: 400,
-      body: "Line 20",
+      body: "Bad Request: No code provided",
     };
   } else {
     const authOptions = {
       url: "https://accounts.spotify.com/api/token",
       form: {
         code: code,
+        // TODO: make this dynamic
         redirect_uri: "https://adoringly-alive-calf.pgsdemo.com/callback",
         grant_type: "authorization_code",
       },
@@ -39,6 +35,7 @@ export const main = async (argumentJson) => {
         Authorization:
           "Basic " +
           btoa(
+            // TODO: hide this data
             `2b0ff51518114cf89178f38905b05dfc:26d51b3f2950451998c7454e316851fe`
           ),
       },
