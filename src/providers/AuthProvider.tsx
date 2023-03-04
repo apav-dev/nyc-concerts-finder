@@ -50,8 +50,11 @@ type ProviderProps = {
 };
 
 export const login = () => {
-  const currentUrl = new URL(window.location.href);
-  window.location.href = `https://${currentUrl.hostname}/login?state=${currentUrl.pathname}`;
+  const originalUrl = window.location.href;
+  const baseUrl = new URL(originalUrl).origin;
+  const state = originalUrl.substring(baseUrl.length + 1);
+  const newUrl = new URL(`${baseUrl}/login`);
+  newUrl.searchParams.set("state", state);
 };
 
 export const fetchRefreshToken = async (
