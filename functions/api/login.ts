@@ -9,10 +9,11 @@ export const main = (argumentJson) => {
 
   const spotifyUrl = new URL(`https://accounts.spotify.com/authorize`);
 
-  let redirect_uri = "https://adoringly-alive-calf.pgsdemo.com/callback";
-  if (argumentJson["headers"]["X-Forwarded-Host"]) {
-    redirect_uri = `https://${argumentJson["headers"]["X-Bot-Score"]}/callback`;
-  }
+  const redirect_uri = "https://adoringly-alive-calf.pgsdemo.com/callback";
+  // TODO: make this dynamic
+  // if (argumentJson["headers"]["X-Forwarded-Host"]) {
+  //   redirect_uri = `https://${argumentJson["headers"]["X-Bot-Score"]}/callback`;
+  // }
 
   let state = params.get("state");
   if (!state) {
@@ -33,38 +34,4 @@ export const main = (argumentJson) => {
     },
     body: "",
   };
-  // const argumentJsonToString = JSON.stringify(argumentJson);
-  // const url = argumentJson["requestUrl"];
-  // const userAgent = argumentJson["userAgent"];
-  // let botscore = 0;
-  // if (argumentJson["headers"]["X-Bot-Score"]) {
-  //   botscore = argumentJson["headers"]["X-Bot-Score"];
-  // }
-  // return {
-  //   "body": `
-  //       <!DOCTYPE html>
-  //           <html lang="en">
-  //           <head>
-  //           </head>
-  //           <body>
-  //               <div style="margin: auto; width:50%; border: 3px solid green; padding: 10px">
-  //                   <body>
-  //                       <h1>API!</h1>
-  //                       <div>Argument JSON: ${urlParams.toString()}</div>
-  //                   </body>
-  //               </div>
-  //           </body>
-  //           </html>
-  //       `,
-  //   "statusCode": 200,
-  //   "headers": {
-  //     "Cache-control": "no-store",
-  //     "X-Yext-Test": "Example header",
-  //   },
-  // };
 };
-
-// <div>Argument JSON: ${argumentJsonToString}</div>
-//         <div>Request URL: ${url}</div>
-//         <div>User Agent: ${userAgent}</div>
-//         <div>Bot Score: ${botscore}</div>
