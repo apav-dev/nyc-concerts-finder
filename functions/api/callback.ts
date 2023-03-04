@@ -12,12 +12,12 @@ export const main = async (argumentJson) => {
   if (state === null) {
     return {
       statusCode: 400,
-      body: "Invalid state",
+      body: "Line 15",
     };
   } else if (code === null) {
     return {
       statusCode: 400,
-      body: "Invalid code",
+      body: "Line 20",
     };
   } else {
     const authOptions = {
