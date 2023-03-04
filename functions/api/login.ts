@@ -1,10 +1,11 @@
-// import * as UrlLib from "https://deno.land/std/node/url.ts";
 const client_id = "2b0ff51518114cf89178f38905b05dfc";
 const scopes = ["user-read-private", "user-read-email", "user-library-read"];
 
 export const main = (argumentJson) => {
   const requestURL = argumentJson["requestUrl"];
-  const urlParams = new URLSearchParams(requestURL);
+  const params = new URLSearchParams(requestURL.split("?")[1]);
+  // can a url in the form /login?state=1234 be used with new URLSearchParams?
+  // const urlParams = new URLSearchParams("/login?state=1234");
 
   const spotifyUrl = new URL(`https://accounts.spotify.com/authorize`);
 
@@ -13,7 +14,7 @@ export const main = (argumentJson) => {
     redirect_uri = `https://${argumentJson["headers"]["X-Bot-Score"]}/callback`;
   }
 
-  let state = urlParams.get("state");
+  let state = params.get("state");
   if (!state) {
     state = "state not found";
   }
@@ -29,8 +30,6 @@ export const main = (argumentJson) => {
     statusCode: 302,
     headers: {
       Location: spotifyUrl.toString(),
-      // add cors headers
-      "Access-Control-Allow-Origin": "*",
     },
     body: "",
   };

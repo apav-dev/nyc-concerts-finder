@@ -15,7 +15,7 @@ const Header = ({ logo }: HeaderProps) => {
       >
         <div className="flex lg:flex-1">
           {logo && (
-            <button onClick={() => login()} className="-m-1.5 p-1.5">
+            <button onClick={login} className="-m-1.5 p-1.5">
               <span className="sr-only">Your Company</span>
               <Image className="h-8 w-auto" image={logo} />
             </button>

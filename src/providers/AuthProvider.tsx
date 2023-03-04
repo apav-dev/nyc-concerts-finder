@@ -50,8 +50,8 @@ type ProviderProps = {
 };
 
 export const login = () => {
-  const url = new URL(window.location.href);
-  fetch(`/login?state=${url.pathname}`);
+  const currentUrl = new URL(window.location.href);
+  window.location.href = `${currentUrl.hostname}/login?state=${currentUrl.pathname}`;
 };
 
 export const fetchRefreshToken = async (
