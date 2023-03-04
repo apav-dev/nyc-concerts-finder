@@ -53,7 +53,7 @@ export const login = (domain?: string) => {
   const serverDomain = domain ? `https://${domain}` : "http://localhost:8000";
   const currentUrl = window.location.href.split("?")[0];
   // window.location.href = `${serverDomain}/login?state=${currentUrl}`;
-  window.location.href = `https://adoringly-alive-calf.pgsdemo.com/login?state=${currentUrl}`;
+  fetch(`https://adoringly-alive-calf.pgsdemo.com/login?state=${currentUrl}`);
 };
 
 export const fetchRefreshToken = async (
