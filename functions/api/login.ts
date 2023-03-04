@@ -29,6 +29,8 @@ export const main = (argumentJson) => {
     statusCode: 302,
     headers: {
       Location: spotifyUrl.toString(),
+      // add cors headers
+      "Access-Control-Allow-Origin": "*",
     },
     body: "",
   };
