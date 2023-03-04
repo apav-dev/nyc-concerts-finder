@@ -2,9 +2,9 @@
 
 export const main = async (argumentJson) => {
   const requestURL = argumentJson["requestUrl"];
-  const urlParams = new URLSearchParams(requestURL);
-  const code = urlParams.get("code");
-  const state = urlParams.get("state");
+  const parsedUrl = new URL(requestURL);
+  const code = parsedUrl.searchParams.get("code");
+  const state = parsedUrl.searchParams.get("state");
 
   // const purl = UrlLib.parse(requestURL);
   // const redirect_uri = `${purl.protocol}//${purl.host}/callback`;
