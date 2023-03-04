@@ -9,10 +9,10 @@ export const main = (argumentJson) => {
 
   const spotifyUrl = new URL(`https://accounts.spotify.com/authorize`);
 
-  const redirect_uri = "https://adoringly-alive-calf.pgsdemo.com/callback";
-  // if (argumentJson["headers"]["X-Forwarded-Host"]) {
-  //   redirect_uri = `https://${argumentJson["headers"]["X-Bot-Score"]}/callback`;
-  // }
+  let redirect_uri = "https://adoringly-alive-calf.pgsdemo.com/callback";
+  if (argumentJson["headers"]["X-Forwarded-Host"]) {
+    redirect_uri = `https://${argumentJson["headers"]["X-Bot-Score"]}/callback`;
+  }
 
   let state = urlParams.get("state");
   if (!state) {
@@ -26,13 +26,13 @@ export const main = (argumentJson) => {
   spotifyUrl.searchParams.append("scope", scopes.join(" "));
   spotifyUrl.searchParams.append("state", state);
 
-  // return {
-  //   statusCode: 302,
-  //   headers: {
-  //     Location: spotifyUrl.toString(),
-  //   },
-  //   body: "",
-  // };
+  return {
+    statusCode: 302,
+    headers: {
+      Location: spotifyUrl.toString(),
+    },
+    body: "",
+  };
   // const argumentJsonToString = JSON.stringify(argumentJson);
   // const url = argumentJson["requestUrl"];
   // const userAgent = argumentJson["userAgent"];
@@ -40,31 +40,29 @@ export const main = (argumentJson) => {
   // if (argumentJson["headers"]["X-Bot-Score"]) {
   //   botscore = argumentJson["headers"]["X-Bot-Score"];
   // }
-  return {
-    "body": `
-        <!DOCTYPE html>
-            <html lang="en">
-            <head>
-            </head>
-            <body>
-                <div style="margin: auto; width:50%; border: 3px solid green; padding: 10px">
-                    <body>
-                      <div>URL Params: ${urlParams.toString()}</div>
-                    </body>
-                </div>
-            </body>
-            </html>
-        `,
-    "statusCode": 200,
-    "headers": {
-      "Cache-control": "no-store",
-      "X-Yext-Test": "Example header",
-    },
-  };
+  // return {
+  //   "body": `
+  //       <!DOCTYPE html>
+  //           <html lang="en">
+  //           <head>
+  //           </head>
+  //           <body>
+  //               <div style="margin: auto; width:50%; border: 3px solid green; padding: 10px">
+  //                   <body>
+  //                       <h1>API!</h1>
+  //                       <div>Argument JSON: ${argumentJsonToString}</div>
+  //                       <div>Request URL: ${url}</div>
+  //                       <div>User Agent: ${userAgent}</div>
+  //                       <div>Bot Score: ${botscore}</div>
+  //                   </body>
+  //               </div>
+  //           </body>
+  //           </html>
+  //       `,
+  //   "statusCode": 200,
+  //   "headers": {
+  //     "Cache-control": "no-store",
+  //     "X-Yext-Test": "Example header",
+  //   },
+  // };
 };
-
-// <h1>API!</h1>
-// <div>Argument JSON: ${argumentJsonToString}</div>
-// <div>Request URL: ${url}</div>
-// <div>User Agent: ${userAgent}</div>
-// <div>Bot Score: ${botscore}</div>
