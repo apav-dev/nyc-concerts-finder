@@ -49,11 +49,9 @@ type ProviderProps = {
   children: React.ReactNode;
 };
 
-export const login = (domain?: string) => {
-  const serverDomain = domain ? `https://${domain}` : "http://localhost:8000";
-  const currentUrl = window.location.href.split("?")[0];
-  // window.location.href = `${serverDomain}/login?state=${currentUrl}`;
-  fetch(`https://adoringly-alive-calf.pgsdemo.com/login?state=${currentUrl}`);
+export const login = () => {
+  const url = new URL(window.location.href);
+  fetch(`/login?state=${url.pathname}`);
 };
 
 export const fetchRefreshToken = async (

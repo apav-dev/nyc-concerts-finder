@@ -4,7 +4,6 @@ const scopes = ["user-read-private", "user-read-email", "user-library-read"];
 
 export const main = (argumentJson) => {
   const requestURL = argumentJson["requestUrl"];
-  // requestURL is in the form /login?state=https://adoringly-alive-calf.pgsdemo.com/concerts/5852338. get the state param
   const urlParams = new URLSearchParams(requestURL);
 
   const spotifyUrl = new URL(`https://accounts.spotify.com/authorize`);
@@ -16,7 +15,7 @@ export const main = (argumentJson) => {
 
   let state = urlParams.get("state");
   if (!state) {
-    state = "https://adoringly-alive-calf.pgsdemo.com/concerts/5852338";
+    state = "state not found";
   }
 
   spotifyUrl.searchParams.append("client_id", client_id);
@@ -26,13 +25,13 @@ export const main = (argumentJson) => {
   spotifyUrl.searchParams.append("scope", scopes.join(" "));
   spotifyUrl.searchParams.append("state", state);
 
-  // return {
-  //   statusCode: 302,
-  //   headers: {
-  //     Location: spotifyUrl.toString(),
-  //   },
-  //   body: "",
-  // };
+  return {
+    statusCode: 302,
+    headers: {
+      Location: spotifyUrl.toString(),
+    },
+    body: "",
+  };
   // const argumentJsonToString = JSON.stringify(argumentJson);
   // const url = argumentJson["requestUrl"];
   // const userAgent = argumentJson["userAgent"];
@@ -40,28 +39,28 @@ export const main = (argumentJson) => {
   // if (argumentJson["headers"]["X-Bot-Score"]) {
   //   botscore = argumentJson["headers"]["X-Bot-Score"];
   // }
-  return {
-    "body": `
-        <!DOCTYPE html>
-            <html lang="en">
-            <head>
-            </head>
-            <body>
-                <div style="margin: auto; width:50%; border: 3px solid green; padding: 10px">
-                    <body>
-                        <h1>API!</h1>
-                        <div>Argument JSON: ${urlParams.toString()}</div>
-                    </body>
-                </div>
-            </body>
-            </html>
-        `,
-    "statusCode": 200,
-    "headers": {
-      "Cache-control": "no-store",
-      "X-Yext-Test": "Example header",
-    },
-  };
+  // return {
+  //   "body": `
+  //       <!DOCTYPE html>
+  //           <html lang="en">
+  //           <head>
+  //           </head>
+  //           <body>
+  //               <div style="margin: auto; width:50%; border: 3px solid green; padding: 10px">
+  //                   <body>
+  //                       <h1>API!</h1>
+  //                       <div>Argument JSON: ${urlParams.toString()}</div>
+  //                   </body>
+  //               </div>
+  //           </body>
+  //           </html>
+  //       `,
+  //   "statusCode": 200,
+  //   "headers": {
+  //     "Cache-control": "no-store",
+  //     "X-Yext-Test": "Example header",
+  //   },
+  // };
 };
 
 // <div>Argument JSON: ${argumentJsonToString}</div>
