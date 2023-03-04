@@ -14,8 +14,6 @@ export const main = (argumentJson) => {
   //   redirect_uri = `https://${argumentJson["headers"]["X-Bot-Score"]}/callback`;
   // }
 
-  const urlParams = new URLSearchParams(requestURL);
-
   let state = urlParams.get("state");
   if (!state) {
     state = "https://adoringly-alive-calf.pgsdemo.com/concerts/5852338";
