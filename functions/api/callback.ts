@@ -53,7 +53,7 @@ export const main = async (argumentJson) => {
 
     const authData = await authResponse.json();
     const authDataString = JSON.stringify(authData);
-    const redirectUrlStr = `concerts/5915115?tokenData=${authDataString}`;
+    const redirectUrlStr = `${state}?tokenData=${authDataString}`;
 
     return {
       statusCode: 302,
