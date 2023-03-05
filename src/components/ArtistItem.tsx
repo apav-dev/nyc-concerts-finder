@@ -1,9 +1,9 @@
 import * as React from "react";
 import { ComplexImageType, Image } from "@yext/pages/components";
 import { twMerge } from "tailwind-merge";
-
-import { useState } from "react";
 import { ArrowUpCircleIcon } from "@heroicons/react/24/solid";
+import TrackItem from "./TrackItem";
+import { mockSpotifyTrack, SpotifyTrack } from "../types/spotify";
 
 type ArtistItemProps = {
   artist: {
@@ -11,20 +11,18 @@ type ArtistItemProps = {
     photoGallery: ComplexImageType[];
     description?: string;
   };
+  open?: boolean;
+  onClick?: () => void;
+  tracks?: SpotifyTrack[];
 };
 
-const ArtistItem = ({ artist }: ArtistItemProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const toggleExpansion = () => {
-    setIsExpanded((prevState) => !prevState);
-  };
-
+const ArtistItem = ({ artist, open, onClick, tracks }: ArtistItemProps) => {
+  // TODO: Only make expandable if there are tracks
   return (
     <div className="relative">
       <div
         className={`${
-          isExpanded ? "h-48" : "h-16"
+          open ? "h-96 sm:h-[448px]" : "h-16"
         } overflow-hidden transition-all duration-300`}
       >
         <div className="ml-4">
@@ -32,8 +30,8 @@ const ArtistItem = ({ artist }: ArtistItemProps) => {
             {artist.photoGallery?.[0] && (
               <div
                 className={twMerge(
-                  "overflow-hidden transition-all duration-300",
-                  isExpanded ? "h-24 w-32" : "h-12 w-16"
+                  "h-12 w-16 overflow-hidden transition-all duration-300",
+                  open && "sm:h-24 sm:w-32"
                 )}
               >
                 <Image
@@ -49,16 +47,21 @@ const ArtistItem = ({ artist }: ArtistItemProps) => {
             </div>
           </div>
         </div>
+        <div className="px-8 py-4">
+          {tracks?.map((track) => (
+            <TrackItem key={track.id} track={track} />
+          ))}
+        </div>
       </div>
       <button
         type="button"
         className="absolute top-0 right-0 mt-4 transform transition-all duration-300 focus:outline-none"
-        onClick={toggleExpansion}
+        onClick={onClick}
       >
         <ArrowUpCircleIcon
           // animate the icon to rotate 180 degrees when the description is expanded
           className={` h-6 w-6 text-white transition-all duration-300 ${
-            isExpanded ? "rotate-180" : ""
+            open ? "rotate-180" : ""
           }`}
         />
       </button>

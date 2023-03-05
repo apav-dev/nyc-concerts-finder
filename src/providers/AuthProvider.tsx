@@ -52,9 +52,18 @@ type ProviderProps = {
 export const login = () => {
   const originalUrl = window.location.href;
   const baseUrl = new URL(originalUrl).origin;
-  const state = originalUrl.substring(baseUrl.length + 1);
-  const newUrl = new URL(`${baseUrl}/login`);
-  newUrl.searchParams.set("state", state);
+
+  if (baseUrl.includes("localhost")) {
+    const state = baseUrl + "/" + originalUrl.substring(baseUrl.length + 1);
+    const newUrl = new URL(`http://localhost:8000/login`);
+    newUrl.searchParams.set("state", state);
+    window.location.href = newUrl.href;
+  } else {
+    const state = originalUrl.substring(baseUrl.length + 1);
+    const newUrl = new URL(`${baseUrl}/login`);
+    newUrl.searchParams.set("state", state);
+    window.location.href = newUrl.href;
+  }
 };
 
 export const fetchRefreshToken = async (
