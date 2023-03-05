@@ -61,6 +61,8 @@ export const login = () => {
   } else {
     const state = originalUrl.substring(baseUrl.length + 1);
     const newUrl = new URL(`${baseUrl}/login`);
+    console.log("state", state);
+    console.log("newUrl", newUrl);
     newUrl.searchParams.set("state", state);
     window.location.href = newUrl.href;
   }
