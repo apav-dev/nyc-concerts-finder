@@ -1,5 +1,11 @@
 const client_id = "2b0ff51518114cf89178f38905b05dfc";
-const scopes = ["user-read-private", "user-read-email", "user-library-read"];
+const scopes = [
+  "user-read-private",
+  "user-read-email",
+  "user-library-read",
+  "streaming",
+  "user-read-playback-state",
+];
 
 export const main = (argumentJson) => {
   const requestURL = argumentJson["requestUrl"];
