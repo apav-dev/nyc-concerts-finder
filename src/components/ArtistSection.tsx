@@ -1,9 +1,9 @@
+import * as React from "react";
 import { useQueries } from "@tanstack/react-query";
 import { ComplexImageType } from "@yext/pages/components";
-import * as React from "react";
 import { useContext } from "react";
 import { getTopTracks } from "../api/spotify";
-import { AuthContext } from "../providers/AuthProvider";
+import { SpotifyContext } from "../providers/SpotifyProvider";
 import ArtistItem from "./ArtistItem";
 
 type ArtistSectionProps = {
@@ -16,7 +16,7 @@ type ArtistSectionProps = {
 };
 
 const ArtistSection = ({ artists }: ArtistSectionProps) => {
-  const { authState } = useContext(AuthContext);
+  const { spotifyState: spotifyState } = useContext(SpotifyContext);
   const [openArtistItem, setOpenArtistItem] = React.useState(-1);
 
   const artistTracks = useQueries({
@@ -24,10 +24,10 @@ const ArtistSection = ({ artists }: ArtistSectionProps) => {
       queryKey: ["artistTracks", artist.c_spotifyId],
       queryFn: () =>
         getTopTracks(
-          authState.spotifyAuth?.access_token || "",
+          spotifyState.authData?.access_token || "",
           artist.c_spotifyId?.split(":")[2] || ""
         ),
-      enabled: !!authState.spotifyAuth?.access_token && !!artist.c_spotifyId,
+      enabled: !!spotifyState.authData?.access_token && !!artist.c_spotifyId,
     })),
   });
 

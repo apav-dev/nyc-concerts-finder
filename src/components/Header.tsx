@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ComplexImageType, Image } from "@yext/pages/components";
-import { login } from "../providers/AuthProvider";
+import { login } from "../providers/SpotifyProvider";
 
 type HeaderProps = {
   logo?: ComplexImageType;

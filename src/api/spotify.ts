@@ -1,4 +1,5 @@
 import { SpotifyTrack } from "../types/spotify";
+import { fetch } from "@yext/pages/util";
 
 export const getTopTracks = async (
   accessToken: string,
@@ -14,4 +15,19 @@ export const getTopTracks = async (
   );
   const data = await response.json();
   return data.tracks;
+};
+
+export const playTrack = (
+  accessToken: string,
+  deviceId: string,
+  trackUri: string
+) => {
+  fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+    method: "PUT",
+    body: JSON.stringify({ uris: [trackUri] }),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 };

@@ -2,47 +2,57 @@ import * as React from "react";
 import { createContext, Dispatch, useEffect, useReducer } from "react";
 import { SpotifyAuth } from "../types/auth";
 import { fetch } from "@yext/pages/util";
+import { SpotifyTrack } from "../types/spotify";
 
-export type AuthState = {
-  spotifyAuth?: SpotifyAuth;
+export type SpotifyState = {
+  authData?: SpotifyAuth;
   serverUrl?: string;
   timeOfLastRefresh?: string;
+  selectedTrack?: SpotifyTrack;
 };
 
-export enum AuthActionTypes {
+export enum SpotifyActionTypes {
   SetSpotifyAuth,
   SetServerUrl,
+  SetSelectedTrack,
 }
 
 export interface SetSpotifyAuth {
-  type: AuthActionTypes.SetSpotifyAuth;
-  payload: AuthState;
+  type: SpotifyActionTypes.SetSpotifyAuth;
+  payload: SpotifyState;
 }
 export interface SetServerUrl {
-  type: AuthActionTypes.SetServerUrl;
+  type: SpotifyActionTypes.SetServerUrl;
   payload: string;
 }
 
-export type AuthActions = SetSpotifyAuth | SetServerUrl;
+export interface SetSelectedTrack {
+  type: SpotifyActionTypes.SetSelectedTrack;
+  payload: SpotifyTrack;
+}
+
+export type SpotifyActions = SetSpotifyAuth | SetServerUrl | SetSelectedTrack;
 
 export const authReducer = (
-  state: AuthState,
-  action: AuthActions
-): AuthState => {
+  state: SpotifyState,
+  action: SpotifyActions
+): SpotifyState => {
   switch (action.type) {
-    case AuthActionTypes.SetSpotifyAuth:
+    case SpotifyActionTypes.SetSpotifyAuth:
       return action.payload;
-    case AuthActionTypes.SetServerUrl:
+    case SpotifyActionTypes.SetServerUrl:
       return { ...state, serverUrl: action.payload };
+    case SpotifyActionTypes.SetSelectedTrack:
+      return { ...state, selectedTrack: action.payload };
     default:
       return state;
   }
 };
 
-export const AuthContext = createContext<{
-  authState: AuthState;
-  dispatch: Dispatch<AuthActions>;
-}>({ authState: {}, dispatch: () => null });
+export const SpotifyContext = createContext<{
+  spotifyState: SpotifyState;
+  dispatch: Dispatch<SpotifyActions>;
+}>({ spotifyState: {}, dispatch: () => null });
 
 type ProviderProps = {
   domain?: string;
@@ -61,8 +71,6 @@ export const login = () => {
   } else {
     const state = originalUrl.substring(baseUrl.length + 1);
     const newUrl = new URL(`${baseUrl}/login`);
-    console.log("state", state);
-    console.log("newUrl", newUrl);
     newUrl.searchParams.set("state", state);
     window.location.href = newUrl.href;
   }
@@ -80,8 +88,8 @@ export const fetchRefreshToken = async (
   return data;
 };
 
-export const AuthProvider = ({ children, domain }: ProviderProps) => {
-  const [authState, dispatch] = useReducer(authReducer, {});
+export const SpotifyProvider = ({ children, domain }: ProviderProps) => {
+  const [spotifyState, dispatch] = useReducer(authReducer, {});
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -89,9 +97,9 @@ export const AuthProvider = ({ children, domain }: ProviderProps) => {
     if (tokenStr) {
       const tokenData = JSON.parse(tokenStr);
       dispatch({
-        type: AuthActionTypes.SetSpotifyAuth,
+        type: SpotifyActionTypes.SetSpotifyAuth,
         payload: {
-          spotifyAuth: tokenData,
+          authData: tokenData,
           timeOfLastRefresh: new Date().toUTCString(),
         },
       });
@@ -100,7 +108,7 @@ export const AuthProvider = ({ children, domain }: ProviderProps) => {
 
   useEffect(() => {
     dispatch({
-      type: AuthActionTypes.SetServerUrl,
+      type: SpotifyActionTypes.SetServerUrl,
       payload: domain ? `https://${domain}` : "http://localhost:8000",
     });
   }, [domain]);
@@ -108,8 +116,8 @@ export const AuthProvider = ({ children, domain }: ProviderProps) => {
   // TODO: fetch spotify token from cookie or local storage on page load
 
   return (
-    <AuthContext.Provider value={{ authState, dispatch }}>
+    <SpotifyContext.Provider value={{ spotifyState, dispatch }}>
       {children}
-    </AuthContext.Provider>
+    </SpotifyContext.Provider>
   );
 };

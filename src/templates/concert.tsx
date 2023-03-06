@@ -12,6 +12,7 @@ import "../index.css";
 import PageLayout from "../layouts/PageLayout";
 import { ComplexImageType, Image } from "@yext/pages/components";
 import ArtistSection from "../components/ArtistSection";
+import MusicPlayer from "../components/MusicPlayer";
 
 export const config: TemplateConfig = {
   stream: {
@@ -114,6 +115,7 @@ const Concert: Template<TemplateRenderProps> = ({
           </div>
         </div>
       )}
+      <MusicPlayer />
     </PageLayout>
   );
 };

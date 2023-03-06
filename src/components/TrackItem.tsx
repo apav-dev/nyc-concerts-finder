@@ -1,4 +1,9 @@
 import * as React from "react";
+import { useContext } from "react";
+import {
+  SpotifyContext,
+  SpotifyActionTypes,
+} from "../providers/SpotifyProvider";
 import { SpotifyTrack } from "../types/spotify";
 
 type TrackItemProps = {
@@ -6,6 +11,12 @@ type TrackItemProps = {
 };
 
 const TrackItem = ({ track }: TrackItemProps) => {
+  const { dispatch } = useContext(SpotifyContext);
+
+  const handleTrackClick = () => {
+    dispatch({ type: SpotifyActionTypes.SetSelectedTrack, payload: track });
+  };
+
   const getSmallestImage = (
     images: { url: string; height: number; width: number }[]
   ) => {
@@ -17,8 +28,12 @@ const TrackItem = ({ track }: TrackItemProps) => {
     });
     return smallestImage;
   };
+
   return (
-    <div className="flex items-center py-2">
+    <div
+      className="flex items-center py-2 hover:bg-gray-700"
+      onClick={handleTrackClick}
+    >
       <div className="flex-shrink-0">
         <img
           className="h-12 w-12 rounded-full"
