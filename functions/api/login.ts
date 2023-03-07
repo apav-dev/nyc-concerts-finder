@@ -7,6 +7,7 @@ const scopes = [
   "user-read-playback-state",
 ];
 
+// TODO: add proxy endpoint
 export const main = (argumentJson) => {
   const requestURL = argumentJson["requestUrl"];
   const params = new URLSearchParams(requestURL.split("?")[1]);

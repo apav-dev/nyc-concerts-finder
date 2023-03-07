@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ComplexImageType } from "@yext/pages/components";
 import * as React from "react";
 import Header from "../components/Header";
-import { SpotifyProvider } from "../providers/SpotifyProvider";
+import { SpotifyProvider } from "../spotify/SpotifyProvider";
 
 type PageLayoutProps = {
   logo?: ComplexImageType;

@@ -1,10 +1,9 @@
 import * as React from "react";
-import { useQueries } from "@tanstack/react-query";
 import { ComplexImageType } from "@yext/pages/components";
-import { useContext } from "react";
-import { getTopTracks } from "../api/spotify";
-import { SpotifyContext } from "../providers/SpotifyProvider";
 import ArtistItem from "./ArtistItem";
+import { useSpotifyState } from "../spotify/useSpotifyState";
+import { useSpotifyActions } from "../spotify/useSpotifyActions";
+import { useEffect } from "react";
 
 type ArtistSectionProps = {
   artists: {
@@ -16,20 +15,26 @@ type ArtistSectionProps = {
 };
 
 const ArtistSection = ({ artists }: ArtistSectionProps) => {
-  const { spotifyState: spotifyState } = useContext(SpotifyContext);
+  const spotifyState = useSpotifyState();
+  const spotifyActions = useSpotifyActions();
   const [openArtistItem, setOpenArtistItem] = React.useState(-1);
 
-  const artistTracks = useQueries({
-    queries: artists.slice(0, 5).map((artist) => ({
-      queryKey: ["artistTracks", artist.c_spotifyId],
-      queryFn: () =>
-        getTopTracks(
-          spotifyState.authData?.access_token || "",
-          artist.c_spotifyId?.split(":")[2] || ""
-        ),
-      enabled: !!spotifyState.authData?.access_token && !!artist.c_spotifyId,
-    })),
-  });
+  useEffect(() => {
+    console.log("state: ", spotifyState);
+  }, [spotifyState]);
+
+  useEffect(() => {
+    if (spotifyState.authData?.access_token) {
+      spotifyActions.fetchTracksForArtists(
+        artists
+          .slice(0, 5)
+          .filter((artist) => artist.c_spotifyId)
+          .map((artist) => artist.c_spotifyId as string)
+      );
+    }
+  }, [spotifyState.authData?.access_token]);
+
+  const artistTracks = spotifyState.artistTracks || {};
 
   const handleArtistItemClick = (idx: number) => {
     if (openArtistItem === idx) {
@@ -47,7 +52,7 @@ const ArtistSection = ({ artists }: ArtistSectionProps) => {
           artist={artist}
           open={openArtistItem === idx}
           onClick={() => handleArtistItemClick(idx)}
-          tracks={artistTracks[idx]?.data?.slice(0, 5)}
+          tracks={artist.c_spotifyId ? artistTracks[artist.c_spotifyId] : []}
         />
       ))}
     </>

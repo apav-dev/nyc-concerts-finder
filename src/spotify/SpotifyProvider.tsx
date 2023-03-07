@@ -1,7 +1,6 @@
 import * as React from "react";
 import { createContext, Dispatch, useEffect, useReducer } from "react";
 import { SpotifyAuth } from "../types/auth";
-import { fetch } from "@yext/pages/util";
 import { SpotifyTrack } from "../types/spotify";
 
 export type SpotifyState = {
@@ -9,12 +8,14 @@ export type SpotifyState = {
   serverUrl?: string;
   timeOfLastRefresh?: string;
   selectedTrack?: SpotifyTrack;
+  artistTracks?: Record<string, SpotifyTrack[]>; // artistId: SpotifyTrack[]
 };
 
 export enum SpotifyActionTypes {
   SetSpotifyAuth,
   SetServerUrl,
   SetSelectedTrack,
+  SetArtistTracks,
 }
 
 export interface SetSpotifyAuth {
@@ -31,7 +32,16 @@ export interface SetSelectedTrack {
   payload: SpotifyTrack;
 }
 
-export type SpotifyActions = SetSpotifyAuth | SetServerUrl | SetSelectedTrack;
+export interface SetArtistTracks {
+  type: SpotifyActionTypes.SetArtistTracks;
+  payload: Record<string, SpotifyTrack[]>;
+}
+
+export type SpotifyActions =
+  | SetSpotifyAuth
+  | SetServerUrl
+  | SetSelectedTrack
+  | SetArtistTracks;
 
 export const authReducer = (
   state: SpotifyState,
@@ -44,6 +54,8 @@ export const authReducer = (
       return { ...state, serverUrl: action.payload };
     case SpotifyActionTypes.SetSelectedTrack:
       return { ...state, selectedTrack: action.payload };
+    case SpotifyActionTypes.SetArtistTracks:
+      return { ...state, artistTracks: action.payload };
     default:
       return state;
   }
@@ -74,18 +86,6 @@ export const login = () => {
     newUrl.searchParams.set("state", state);
     window.location.href = newUrl.href;
   }
-};
-
-export const fetchRefreshToken = async (
-  refresh_token: string,
-  domain?: string
-) => {
-  const serverDomain = domain ? `https://${domain}` : "http://localhost:8000";
-  const response = await fetch(
-    `${serverDomain}/refresh_token?refresh_token=${refresh_token}`
-  );
-  const data = await response.json();
-  return data;
 };
 
 export const SpotifyProvider = ({ children, domain }: ProviderProps) => {
