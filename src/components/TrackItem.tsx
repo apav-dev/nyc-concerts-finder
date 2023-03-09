@@ -34,8 +34,12 @@ const TrackItem = ({ track }: TrackItemProps) => {
         />
       </div>
       <div className="ml-4">
-        <div className="text-sm font-medium text-white">{track.name}</div>
-        <div className="text-sm text-gray-300">{track.artists[0].name}</div>
+        <div className="font-poppins text-sm font-medium text-white">
+          {track.name}
+        </div>
+        <div className="font-poppins text-sm text-gray-300">
+          {track.artists[0].name}
+        </div>
       </div>
     </div>
   );

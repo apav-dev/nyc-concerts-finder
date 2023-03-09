@@ -1,3 +1,4 @@
+// TODO: remove this file and replace with calls in useSpotifyActions
 import { SpotifyTrack } from "../types/spotify";
 import { fetch } from "@yext/pages/util";
 import { SpotifyAuth } from "../types/auth";
@@ -43,7 +44,7 @@ export const refreshAuthToken = async (
 
   try {
     const response = await fetch(
-      `localhost:8000/refresh?refresh_token=${refreshToken}`
+      `http://localhost:8000/refresh?refresh_token=${refreshToken}`
     );
     const data = await response.json();
     return data as SpotifyAuth;

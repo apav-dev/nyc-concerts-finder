@@ -1,9 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
 
 .centered-container {
-  @apply mx-auto px-5 md:px-14 max-w-screen-xl;
+  @apply mx-auto max-w-screen-xl px-5 md:px-14;
 }
 
 .section {

@@ -2,7 +2,12 @@ import * as React from "react";
 import { useContext, useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { SpotifyContext } from "../spotify/SpotifyProvider";
-import { PlayIcon, PauseIcon } from "@heroicons/react/24/solid";
+import {
+  PlayIcon,
+  PauseIcon,
+  ForwardIcon,
+  BackwardIcon,
+} from "@heroicons/react/24/solid";
 import { playTrack } from "../api/spotify";
 import { TrackProgressBar } from "./TrackProgressBar";
 import { MobileTrackPlayer } from "./mobile/MobileTrackPlayer";
@@ -83,10 +88,11 @@ const MusicPlayer = () => {
         localStorage.setItem("spotifyPlayer", JSON.stringify(player));
       };
     }
-  }, [spotifyState.authData?.access_token]);
+  }, []);
 
   const handlePlayPauseClick = () => {
     if (spotifyState.selectedTrack && spotifyState.authData?.access_token) {
+      debugger;
       trackState.paused
         ? playTrack(
             spotifyState.authData?.access_token,
@@ -96,6 +102,7 @@ const MusicPlayer = () => {
           )
         : player?.pause();
     }
+    // player?.togglePlay();
   };
 
   // function that runs every 300 ms to update the position of the track
@@ -115,9 +122,6 @@ const MusicPlayer = () => {
     // div that is fixed to the bottom of the screen and takes up the full width. Only appears when spotifyState.currentTrack is not null
     <div
       className={twMerge(
-        // top glowing box shadow
-        // `absolute top-0 left-0 w-full h-1 `,
-        // bg-gradient-to-b from-gray-900 to-gray-600 bg-gradient-to-r
         `fixed bottom-0 left-0 h-0 w-full overflow-hidden bg-gradient-to-r from-gray-900 to-gray-600 shadow-2xl shadow-white transition-all duration-300`,
         spotifyState.selectedTrack && "h-[68px]"
       )}
@@ -127,12 +131,12 @@ const MusicPlayer = () => {
         position={trackState.position}
         duration={trackState.duration}
       />
-      <div className="mx-auto flex max-w-7xl items-center justify-between py-2 px-4 sm:px-6 lg:px-8">
-        <div className="flex">
-          <div
-            className="flex-shrink-0"
-            onClick={() => setMobilePlayerOpen(true)}
-          >
+      <div className="mx-auto flex max-w-7xl items-center py-2 px-4 sm:px-6 lg:px-8">
+        <div
+          className="flex flex-auto"
+          onClick={() => setMobilePlayerOpen(true)}
+        >
+          <div className="flex-shrink-0">
             <img
               className="h-12 w-12 rounded-full"
               src={spotifyState.selectedTrack?.album.images[0].url}
@@ -148,12 +152,12 @@ const MusicPlayer = () => {
             </div>
           </div>
         </div>
-        <div className="flex-shrink-0">
+        <div className="h-8 w-8 flex-shrink-0">
           <button onClick={handlePlayPauseClick}>
             {trackState.paused ? (
-              <PlayIcon className="h-6 w-6 text-white" />
+              <PlayIcon className="h-full w-full text-white" />
             ) : (
-              <PauseIcon className="h-6 w-6 text-white" />
+              <PauseIcon className="h-full w-full text-white" />
             )}
           </button>
         </div>
@@ -162,6 +166,8 @@ const MusicPlayer = () => {
         trackState={trackState}
         open={mobilePlayerOpen}
         setOpen={setMobilePlayerOpen}
+        paused={trackState.paused}
+        onPlayPauseClick={handlePlayPauseClick}
       />
     </div>
   );

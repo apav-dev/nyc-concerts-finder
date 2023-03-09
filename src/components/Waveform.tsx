@@ -83,12 +83,27 @@ function Waveform({ waveform, position, duration }: WaveformProps) {
     };
   }, [waveform, position]);
 
+  const milliToSeconds = (milli: number) => {
+    // convert milli to mm:ss format
+    const minutes = Math.floor(milli / 60000);
+    const seconds = ((milli % 60000) / 1000).toFixed(0);
+    return `${minutes}:${seconds.padStart(2, "0")}`;
+  };
+
   return (
-    <section className="flex h-full w-full items-center">
-      <div className="h-full w-full" style={{ height: "100%" }}>
-        <canvas ref={canvasRef} />
+    <div className="mt-4 flex h-16">
+      <div className="mx-auto flex h-full w-96 items-center">
+        <div className="w-12 text-sm text-white">
+          {milliToSeconds(position)}
+        </div>
+        <div className="flex h-full w-full" style={{ height: "100%" }}>
+          <canvas className="" ref={canvasRef} />
+        </div>
+        <div className="w-12 text-sm text-white">
+          {milliToSeconds(duration)}
+        </div>
       </div>
-    </section>
+    </div>
   );
 }
 

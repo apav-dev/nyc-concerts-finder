@@ -6,7 +6,6 @@ import { SpotifyTrack } from "../types/spotify";
 export type SpotifyState = {
   authData?: SpotifyAuth;
   serverUrl?: string;
-  timeOfLastRefresh?: string;
   selectedTrack?: SpotifyTrack;
   artistTracks?: Record<string, SpotifyTrack[]>; // artistId: SpotifyTrack[]
 };
@@ -91,19 +90,30 @@ export const login = () => {
 export const SpotifyProvider = ({ children, domain }: ProviderProps) => {
   const [spotifyState, dispatch] = useReducer(authReducer, {});
 
+  // TODO: save authData to HttpOnly cookie instead of local storage
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tokenStr = urlParams.get("tokenData");
-    if (tokenStr) {
-      const tokenData = JSON.parse(tokenStr);
-      dispatch({
-        type: SpotifyActionTypes.SetSpotifyAuth,
-        payload: {
-          authData: tokenData,
+    let tokenStr = localStorage.getItem("tokenData");
+    let authData = null;
+    if (!tokenStr) {
+      const urlParams = new URLSearchParams(window.location.search);
+      tokenStr = urlParams.get("tokenData");
+      if (tokenStr) {
+        authData = {
+          ...JSON.parse(tokenStr),
           timeOfLastRefresh: new Date().toUTCString(),
-        },
-      });
+        };
+        localStorage.setItem("tokenData", JSON.stringify(authData));
+      }
+    } else {
+      authData = JSON.parse(tokenStr);
     }
+
+    dispatch({
+      type: SpotifyActionTypes.SetSpotifyAuth,
+      payload: {
+        authData,
+      },
+    });
   }, []);
 
   useEffect(() => {
@@ -112,8 +122,6 @@ export const SpotifyProvider = ({ children, domain }: ProviderProps) => {
       payload: domain ? `https://${domain}` : "http://localhost:8000",
     });
   }, [domain]);
-
-  // TODO: fetch spotify token from cookie or local storage on page load
 
   return (
     <SpotifyContext.Provider value={{ spotifyState, dispatch }}>

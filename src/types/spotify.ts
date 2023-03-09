@@ -91,6 +91,7 @@ export type SpotifyTrack = {
   type: string;
   uri: string;
   is_local: boolean;
+  waveform?: number[];
 };
 
 // mock data of SpotifyTrack
