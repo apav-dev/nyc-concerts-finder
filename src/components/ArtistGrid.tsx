@@ -39,7 +39,7 @@ const ArtistGrid = ({ artists }: ArtistGridProps) => {
 
   return (
     <div className="px-16">
-      <div className="grid grid-flow-col grid-cols-2 grid-rows-4 gap-2 sm:h-[calc(100vh-144px)]">
+      <div className="grid grid-flow-col grid-cols-2 grid-rows-4 gap-2 sm:h-[calc(100vh-192px)]">
         {artists.slice(0, 8).map((artist, idx) => (
           <div
             key={artist.name}

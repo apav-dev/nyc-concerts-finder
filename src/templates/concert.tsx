@@ -107,7 +107,7 @@ const Concert: Template<TemplateRenderProps> = ({
           </div>
         </div>
       </div>
-      {c_artists && <ArtistSection artists={c_artists} />}
+      {c_artists && <ArtistSection artists={c_artists} concertName={name} />}
     </PageLayout>
   );
 };

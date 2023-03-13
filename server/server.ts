@@ -15,13 +15,7 @@ app.use(
 const client_id = "2b0ff51518114cf89178f38905b05dfc";
 const client_secret = "26d51b3f2950451998c7454e316851fe";
 const redirect_uri = "http://localhost:8000/callback";
-const scopes = [
-  "user-read-private",
-  "user-read-email",
-  "user-library-read",
-  "streaming",
-  "user-read-playback-state",
-];
+const scopes = ["user-read-private", "user-read-email", "streaming"];
 
 router.get("/login", (ctx) => {
   let state = ctx.request.url.searchParams.get("state");
@@ -79,6 +73,12 @@ router.get("/callback", async (ctx) => {
     const authData = await authResponse.json();
     const authDataString = JSON.stringify(authData);
 
+    const cookieOptions = {
+      httpOnly: true,
+      secure: false, // No HTTPS used for local development
+    };
+    ctx.cookies.set("tokenData", authDataString, cookieOptions);
+
     ctx.response.redirect(state + "?tokenData=" + authDataString);
   }
 });
@@ -116,6 +116,13 @@ router.get("/refresh", async (ctx) => {
   const authData = await authResponse.json();
   const authDataString = JSON.stringify(authData);
 
+  const cookieOptions = {
+    httpOnly: true,
+    secure: false, // No HTTPS used for local development
+  };
+
+  ctx.cookies.set("tokenData", authDataString, cookieOptions);
+
   ctx.response.body = authDataString;
 });
 
@@ -143,7 +150,6 @@ router.get("/waveform/:id", async (ctx) => {
     }
   );
 
-  // type of response is SpotifyAudioAnalysis
   const data = (await response.json()) as SpotifyAudioAnalysis;
 
   if (data.error?.status === 401 && data.error.message) {
@@ -175,11 +181,9 @@ router.get("/waveform/:id", async (ctx) => {
 
     ctx.response.body = levels;
   } else {
-    console.log(response);
-    // const error = errors && errors[0];
-    // const message = error ? error.message : "Unknown error";
+    console.log("Bad Request");
     ctx.response.status = 400;
-    ctx.response.body = { message: "idk" };
+    ctx.response.body = { message: "Bad Request" };
   }
 });
 
@@ -190,11 +194,18 @@ router.get("/test", (ctx) => {
 
 // Define your 404 route
 // app.use((ctx) => {
-//   ctx.response.status = 404;
-//   ctx.response.body = "Not found";
+//   const cookieOptions = {
+//     httpOnly: true,
+//     secure: false, // No HTTPS used for local development
+//   };
+//   ctx.cookies.set("test", "value", cookieOptions);
+
+//   ctx.response.status = 200;
+//   ctx.response.body = "Test Endpoint";
 // });
 
 app.use(router.routes());
 app.use(router.allowedMethods());
 
+console.log("Server running on port 8000");
 await app.listen({ port: 8000 });
