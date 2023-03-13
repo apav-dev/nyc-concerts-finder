@@ -4,13 +4,10 @@ import { Fragment } from "react";
 import { useContext } from "react";
 import { SpotifyContext } from "../../spotify/SpotifyProvider";
 import { TrackState } from "../MusicPlayer";
-import {
-  ChevronDownIcon,
-  ForwardIcon,
-  BackwardIcon,
-} from "@heroicons/react/24/solid";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import Waveform from "../Waveform";
 import { PlayIcon, PauseIcon } from "@heroicons/react/24/solid";
+import { BiSkipNext, BiSkipPrevious } from "react-icons/bi";
 
 type MobileTrackPlayerProps = {
   trackState: TrackState;
@@ -21,7 +18,6 @@ type MobileTrackPlayerProps = {
 };
 
 export const MobileTrackPlayer = ({
-  trackState,
   open,
   setOpen,
   paused,
@@ -79,17 +75,11 @@ export const MobileTrackPlayer = ({
                         </div>
                       </div>
                     </div>
-                    {spotifyState.selectedTrack?.waveform && (
-                      <Waveform
-                        waveform={spotifyState.selectedTrack?.waveform}
-                        position={trackState.position}
-                        duration={trackState.duration}
-                      />
-                    )}
+                    <Waveform />
                     <div>
                       <div className="my-6 flex justify-center">
                         <div className="h-16 w-16 flex-shrink-0">
-                          <BackwardIcon className="h-full w-full text-white" />
+                          <BiSkipPrevious className="h-full w-full text-white" />
                         </div>
                         <div className="h-16 w-16 flex-shrink-0">
                           <button onClick={onPlayPauseClick}>
@@ -101,7 +91,7 @@ export const MobileTrackPlayer = ({
                           </button>
                         </div>
                         <div className="h-16 w-16 flex-shrink-0">
-                          <ForwardIcon className="h-full w-full text-white" />
+                          <BiSkipNext className="h-full w-full text-white" />
                         </div>
                       </div>
                     </div>

@@ -19,7 +19,7 @@ export const getTopTracks = async (
   return data.tracks;
 };
 
-export const playTrack = (
+export const playTrack = async (
   accessToken: string,
   deviceId: string,
   trackUri: string,
@@ -51,4 +51,20 @@ export const refreshAuthToken = async (
   } catch (e) {
     console.log(e);
   }
+};
+
+export const seekToPosition = (
+  accessToken: string,
+  deviceId: string,
+  position: number
+) => {
+  fetch(
+    `https://api.spotify.com/v1/me/player/seek?position_ms=${position}&device_id=${deviceId}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
 };

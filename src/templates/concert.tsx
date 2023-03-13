@@ -10,12 +10,10 @@ import {
 import * as React from "react";
 import "../index.css";
 import PageLayout from "../layouts/PageLayout";
-import { ComplexImageType, Image } from "@yext/pages/components";
-import ArtistGrid from "../components/ArtistGrid";
-import MusicPlayer from "../components/MusicPlayer";
+import { ComplexImageType } from "@yext/pages/components";
+
 import GlowingImage from "../components/GlowingImage";
 import { useSpotifyState } from "../spotify/useSpotifyState";
-import ArtistInfo from "../components/ArtistInfo";
 import ArtistSection from "../components/ArtistSection";
 
 export const config: TemplateConfig = {
@@ -86,7 +84,7 @@ const Concert: Template<TemplateRenderProps> = ({
 
   return (
     <PageLayout logo={_site.c_logo}>
-      <div className="mx-auto max-w-2xl px-4 pt-4 pb-16 sm:px-6 sm:pt-8 lg:h-[calc(100vh-80px)] lg:max-w-7xl lg:px-8">
+      <div className="mx-auto max-w-2xl px-4 pt-4 pb-20 sm:px-6 sm:pt-8 lg:h-[calc(100vh-80px)] lg:max-w-7xl lg:px-8">
         <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
           {mainPhoto && (
             <div className="aspect-w-1 aspect-h-1 w-full">
@@ -110,15 +108,6 @@ const Concert: Template<TemplateRenderProps> = ({
         </div>
       </div>
       {c_artists && <ArtistSection artists={c_artists} />}
-      {/* <div className="mx-auto max-w-screen-2xl px-4 pt-4 pb-16 sm:px-6 sm:pt-8 lg:grid lg:h-screen lg:min-h-screen lg:grid-cols-2 lg:px-8">
-        <ArtistInfo />
-        {c_artists && (
-          <div className="mt-4">
-            <ArtistGrid artists={c_artists} />
-          </div>
-        )}
-      </div>
-      <MusicPlayer /> */}
     </PageLayout>
   );
 };

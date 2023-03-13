@@ -12,6 +12,9 @@ import { playTrack } from "../api/spotify";
 import { TrackProgressBar } from "./TrackProgressBar";
 import { MobileTrackPlayer } from "./mobile/MobileTrackPlayer";
 import { useSpotifyActions } from "../spotify/useSpotifyActions";
+import { useSpotifyState } from "../spotify/useSpotifyState";
+import Waveform from "./Waveform";
+import { BiSkipNext, BiSkipPrevious } from "react-icons/bi";
 
 export type TrackState = {
   paused: boolean;
@@ -26,25 +29,25 @@ type MusicPlayerProps = {
 
 const MusicPlayer = ({ token }: MusicPlayerProps) => {
   const spotifyActions = useSpotifyActions();
-  const { spotifyState } = useContext(SpotifyContext);
-  const [player, setPlayer] = useState<Spotify.Player | undefined>(undefined);
-  const [deviceId, setDeviceId] = useState("");
-  const [trackState, setTrackState] = useState<TrackState>({
-    paused: true,
-    position: 0,
-    duration: 0,
-    updateTime: 0,
-  });
+  const spotifyState = useSpotifyState();
+  const player = spotifyState.player;
+  const deviceId = spotifyState.deviceId;
+  const trackState = spotifyState.trackState;
+  const selectedTrack = spotifyState.selectedTrack;
   const [mobilePlayerOpen, setMobilePlayerOpen] = useState(false);
 
   useEffect(() => {
-    setTrackState({
+    spotifyActions.setTrackState({
       paused: true,
       position: 0,
-      duration: 0,
+      duration: selectedTrack?.duration_ms || 0,
       updateTime: 0,
     });
-  }, [spotifyState.selectedTrack]);
+  }, [selectedTrack]);
+
+  useEffect(() => {
+    console.log(trackState);
+  }, [trackState?.paused]);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -63,11 +66,11 @@ const MusicPlayer = ({ token }: MusicPlayerProps) => {
         volume: 0.5,
       });
 
-      setPlayer(player);
+      spotifyActions.setPlayer(player);
 
       player.addListener("ready", ({ device_id }) => {
         console.log("Ready with Device ID", device_id);
-        setDeviceId(device_id);
+        spotifyActions.setDeviceId(device_id);
       });
 
       player.addListener("not_ready", ({ device_id }) => {
@@ -75,11 +78,10 @@ const MusicPlayer = ({ token }: MusicPlayerProps) => {
       });
 
       player.addListener("player_state_changed", (state) => {
-        console.log("Player State Changed");
         if (!state) {
           return;
         }
-        setTrackState({
+        spotifyActions.setTrackState({
           paused: state.paused,
           position: state.position,
           duration: state.duration,
@@ -91,45 +93,31 @@ const MusicPlayer = ({ token }: MusicPlayerProps) => {
     };
   }, []);
 
-  const handlePlayPauseClick = () => {
+  const handlePlayPauseClick = async () => {
     spotifyActions.togglePlayPaused();
-    if (spotifyState.selectedTrack && spotifyState.authData?.access_token) {
-      trackState.paused
-        ? playTrack(
-            spotifyState.authData?.access_token,
-            deviceId,
-            spotifyState.selectedTrack.uri,
-            trackState.position
-          )
-        : player?.pause();
+    if (selectedTrack && deviceId && trackState) {
+      if (trackState?.paused) {
+        playTrack(token, deviceId, selectedTrack.uri, trackState.position);
+      } else {
+        spotifyState.player?.pause();
+      }
     }
   };
 
-  // function that runs every 300 ms to update the position of the track
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (!trackState.paused) {
-        setTrackState((prevState) => ({
-          ...prevState,
-          position: prevState.position + 300,
-        }));
-      }
-    }, 300);
-    return () => clearInterval(interval);
-  }, [trackState.paused]);
+    selectedTrack && spotifyActions.fetchWaveformForTrack(selectedTrack?.id);
+  }, [spotifyState.selectedTrack?.id]);
 
   return (
     <div
       className={twMerge(
         `fixed bottom-0 left-0 h-0 w-full overflow-hidden bg-gradient-to-r from-gray-900 to-gray-600 shadow-2xl shadow-white transition-all duration-300`,
-        spotifyState.selectedTrack && "h-[68px]"
+        spotifyState.selectedTrack && "h-16 lg:h-20"
       )}
     >
-      <TrackProgressBar
-        position={trackState.position}
-        duration={trackState.duration}
-      />
-      <div className="mx-auto flex max-w-7xl items-center py-2 px-4 sm:px-6 lg:px-8">
+      {trackState && <TrackProgressBar />}
+
+      <div className="mx-auto flex max-w-7xl items-center px-4 py-2 sm:px-6 lg:py-0 lg:px-8">
         <div
           className="flex flex-auto"
           onClick={() => setMobilePlayerOpen(true)}
@@ -137,36 +125,51 @@ const MusicPlayer = ({ token }: MusicPlayerProps) => {
           <div className="flex-shrink-0">
             <img
               className="h-12 w-12 rounded-full"
-              src={spotifyState.selectedTrack?.album.images[0].url}
+              src={selectedTrack?.album.images[0].url}
               alt=""
             />
           </div>
           <div className="ml-4">
             <div className="text-sm font-medium text-white">
-              {spotifyState.selectedTrack?.name}
+              {selectedTrack?.name}
             </div>
             <div className="text-sm text-gray-300">
-              {spotifyState.selectedTrack?.artists[0].name}
+              {selectedTrack?.artists[0].name}
             </div>
           </div>
         </div>
-        <div className="h-8 w-8 flex-shrink-0">
-          <button onClick={handlePlayPauseClick}>
-            {trackState.paused ? (
-              <PlayIcon className="h-full w-full text-white" />
-            ) : (
-              <PauseIcon className="h-full w-full text-white" />
-            )}
-          </button>
+        <div className="hidden lg:flex lg:items-center lg:gap-8">
+          <Waveform />
+          <div>
+            <div className="my-6 flex justify-center">
+              <div className="h-8 w-8 flex-shrink-0">
+                <BiSkipPrevious className="h-full w-full text-white" />
+              </div>
+              <div className="h-8 w-8 flex-shrink-0">
+                <button onClick={handlePlayPauseClick}>
+                  {trackState?.paused ? (
+                    <PlayIcon className="h-full w-full text-white" />
+                  ) : (
+                    <PauseIcon className="h-full w-full text-white" />
+                  )}
+                </button>
+              </div>
+              <div className="h-8 w-8 flex-shrink-0">
+                <BiSkipNext className="h-full w-full text-white" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <MobileTrackPlayer
-        trackState={trackState}
-        open={mobilePlayerOpen}
-        setOpen={setMobilePlayerOpen}
-        paused={trackState.paused}
-        onPlayPauseClick={handlePlayPauseClick}
-      />
+      {trackState && (
+        <MobileTrackPlayer
+          trackState={trackState}
+          open={mobilePlayerOpen}
+          setOpen={setMobilePlayerOpen}
+          paused={trackState.paused}
+          onPlayPauseClick={handlePlayPauseClick}
+        />
+      )}
     </div>
   );
 };

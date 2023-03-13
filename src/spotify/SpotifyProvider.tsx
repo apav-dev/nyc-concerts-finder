@@ -12,6 +12,13 @@ export type Artist = {
   c_spotifyId?: string;
 };
 
+export type TrackState = {
+  paused: boolean;
+  position: number;
+  duration: number;
+  updateTime: number;
+};
+
 export type SpotifyState = {
   authData?: SpotifyAuth;
   serverUrl?: string;
@@ -20,6 +27,9 @@ export type SpotifyState = {
   tracks?: SpotifyTrack[]; // artistId: SpotifyTrack[]
   isPaused?: boolean;
   artistDataLoading?: boolean;
+  player?: Spotify.Player;
+  deviceId?: string;
+  trackState?: TrackState;
 };
 
 export enum SpotifyActionTypes {
@@ -30,6 +40,9 @@ export enum SpotifyActionTypes {
   SetTracks,
   SetPaused,
   ToggleArtistDataLoading,
+  SetPlayer,
+  SetDeviceId,
+  SetTrackState,
 }
 
 export interface SetSpotifyAuth {
@@ -66,6 +79,21 @@ export interface ToggleArtistDataLoading {
   payload: boolean;
 }
 
+export interface SetPlayer {
+  type: SpotifyActionTypes.SetPlayer;
+  payload: Spotify.Player;
+}
+
+export interface SetDeviceId {
+  type: SpotifyActionTypes.SetDeviceId;
+  payload: string;
+}
+
+export interface SetTrackState {
+  type: SpotifyActionTypes.SetTrackState;
+  payload: TrackState;
+}
+
 export type SpotifyActions =
   | SetSpotifyAuth
   | SetServerUrl
@@ -73,7 +101,10 @@ export type SpotifyActions =
   | SetSelectedArtist
   | SetTrack
   | SetPaused
-  | ToggleArtistDataLoading;
+  | ToggleArtistDataLoading
+  | SetPlayer
+  | SetDeviceId
+  | SetTrackState;
 
 export const authReducer = (
   state: SpotifyState,
@@ -94,6 +125,12 @@ export const authReducer = (
       return { ...state, isPaused: action.payload };
     case SpotifyActionTypes.ToggleArtistDataLoading:
       return { ...state, artistDataLoading: action.payload };
+    case SpotifyActionTypes.SetPlayer:
+      return { ...state, player: action.payload };
+    case SpotifyActionTypes.SetDeviceId:
+      return { ...state, deviceId: action.payload };
+    case SpotifyActionTypes.SetTrackState:
+      return { ...state, trackState: action.payload };
     default:
       return state;
   }
@@ -143,20 +180,27 @@ export const SpotifyProvider = ({ children, domain }: ProviderProps) => {
           ...JSON.parse(tokenStr),
           timeOfLastRefresh: new Date().toUTCString(),
         };
+        console.log("Auth Data in checkAndRefreshToken: ", authData);
+
         localStorage.setItem("tokenData", JSON.stringify(authData));
       }
     } else {
       authData = JSON.parse(tokenStr) as SpotifyAuth;
       // if it has been more than 60 minutes since the last refresh, refresh the token
-      if (new Date().getTime() - authData.expires_in > 60 * 60 * 1000) {
-        console.log("refreshing token");
-        refreshAuthToken(authData.refresh_token).then((newAuthData) => {
-          authData = {
-            ...newAuthData,
-            timeOfLastRefresh: new Date().toUTCString(),
-          };
-          localStorage.setItem("tokenData", JSON.stringify(authData));
-        });
+      if (authData.timeOfLastRefresh) {
+        if (
+          new Date().getTime() -
+            new Date(authData.timeOfLastRefresh).getTime() >
+          60 * 60 * 1000
+        ) {
+          refreshAuthToken(authData.refresh_token).then((newAuthData) => {
+            authData = {
+              ...newAuthData,
+              timeOfLastRefresh: new Date().toUTCString(),
+            };
+            localStorage.setItem("tokenData", JSON.stringify(authData));
+          });
+        }
       }
     }
 

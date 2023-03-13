@@ -34,8 +34,13 @@ const TrackTable = () => {
     return smallestImage;
   };
 
+  const handleClickTrack = (track: SpotifyTrack) => {
+    console.log("clicked track");
+    spotifyActions.setSelectedTrack(track);
+  };
+
   return (
-    <div className="">
+    <div className="l">
       <div className="mt-4 flow-root">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -74,12 +79,12 @@ const TrackTable = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className=" ">
+              <tbody className="h-20 overflow-hidden overflow-y-scroll">
                 {tracks?.slice(0, 5).map((track, idx) => (
                   <tr
                     key={track.id}
                     className="group hover:bg-gray-700"
-                    onClick={() => spotifyActions.setSelectedTrack(track)}
+                    onClick={() => handleClickTrack(track)}
                   >
                     <td className="whitespace-nowrap py-4 px-1 text-sm font-medium text-gray-900">
                       {selectedTrack?.id === track.id && isPaused ? (

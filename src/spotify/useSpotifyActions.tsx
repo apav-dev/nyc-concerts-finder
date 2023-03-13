@@ -4,6 +4,7 @@ import {
   SpotifyActionTypes,
   SpotifyContext,
   SpotifyState,
+  TrackState,
 } from "./SpotifyProvider";
 import { getTopTracks, refreshAuthToken } from "../api/spotify";
 
@@ -53,26 +54,6 @@ export const useSpotifyActions = () => {
       artistId.split(":")[2] || ""
     );
 
-    // use Promise.all to fetch the waveforms for each track
-    // const trackWaveforms = await Promise.all(
-    //   artistTracks.map(async (track) => {
-    //     const waveform = await fetch(
-    //       `http://localhost:8000/waveform/${track.id}?token=${authData?.access_token}`,
-    //       {
-    //         headers: {
-    //           "Content-Type": "application/json",
-    //         },
-    //       }
-    //     ).then((res) => res.json());
-    //     return waveform;
-    //   })
-    // );
-
-    // set the waveforms on the tracks
-    // artistTracks.forEach((track, index) => {
-    //   track.waveform = trackWaveforms[index];
-    // });
-
     dispatch({
       type: SpotifyActionTypes.SetTracks,
       payload: artistTracks,
@@ -120,6 +101,51 @@ export const useSpotifyActions = () => {
     });
   };
 
+  const fetchWaveformForTrack = async (trackId: string) => {
+    await checkAndRefreshToken();
+
+    const { authData, selectedTrack } = spotifyState;
+
+    const waveform = await fetch(
+      `http://localhost:8000/waveform/${trackId}?token=${authData?.access_token}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    ).then((res) => res.json());
+
+    if (selectedTrack && selectedTrack.id === trackId) {
+      dispatch({
+        type: SpotifyActionTypes.SetSelectedTrack,
+        payload: {
+          ...selectedTrack,
+          waveform,
+        },
+      });
+    }
+
+    // use Promise.all to fetch the waveforms for each track
+    // const trackWaveforms = await Promise.all(
+    //   artistTracks.map(async (track) => {
+    //     const waveform = await fetch(
+    //       `http://localhost:8000/waveform/${track.id}?token=${authData?.access_token}`,
+    //       {
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //         },
+    //       }
+    //     ).then((res) => res.json());
+    //     return waveform;
+    //   })
+    // );
+
+    // set the waveforms on the tracks
+    // artistTracks.forEach((track, index) => {
+    //   track.waveform = trackWaveforms[index];
+    // });
+  };
+
   const checkAndRefreshToken = async () => {
     const { authData } = spotifyState;
 
@@ -135,6 +161,8 @@ export const useSpotifyActions = () => {
       const refreshedAuthData = await refreshAuthToken(authData.refresh_token);
       if (refreshedAuthData) {
         const timeOfLastRefresh = new Date().toUTCString();
+        console.log("Auth Data in checkAndRefreshToken: ", refreshedAuthData);
+
         localStorage.setItem(
           "authData",
           JSON.stringify({
@@ -155,6 +183,49 @@ export const useSpotifyActions = () => {
     }
   };
 
+  const seekToPosition = async (position: number) => {
+    await checkAndRefreshToken();
+
+    const { authData, deviceId, trackState } = spotifyState;
+    if (trackState) {
+      fetch(
+        `https://api.spotify.com/v1/me/player/seek?position_ms=${position}&device_id=${deviceId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${authData?.access_token}`,
+          },
+        }
+      ).then((_res) => {
+        setTrackState({
+          ...trackState,
+          position,
+        });
+      });
+    }
+  };
+
+  const setPlayer = async (player: Spotify.Player) => {
+    dispatch({
+      type: SpotifyActionTypes.SetPlayer,
+      payload: player,
+    });
+  };
+
+  const setDeviceId = (deviceId: string) => {
+    dispatch({
+      type: SpotifyActionTypes.SetDeviceId,
+      payload: deviceId,
+    });
+  };
+
+  const setTrackState = (trackState: TrackState) => {
+    dispatch({
+      type: SpotifyActionTypes.SetTrackState,
+      payload: trackState,
+    });
+  };
+
   const togglePlayPaused = () => {
     dispatch({
       type: SpotifyActionTypes.SetPaused,
@@ -170,5 +241,10 @@ export const useSpotifyActions = () => {
     fetchTracksForArtist,
     fetchArtistAndTracks,
     togglePlayPaused,
+    fetchWaveformForTrack,
+    seekToPosition,
+    setPlayer,
+    setDeviceId,
+    setTrackState,
   };
 };

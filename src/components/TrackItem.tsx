@@ -30,13 +30,17 @@ const TrackItem = ({ track, index }: TrackItemProps) => {
     return smallestImage;
   };
 
+  const handleClickTrack = () => {
+    spotifyActions.setSelectedTrack(track);
+  };
+
   return (
     <div
       className={twMerge(
         "group flex items-center justify-between py-2 px-2 hover:bg-gray-700",
         selectedTrack?.id === track.id && "bg-gray-700"
       )}
-      onClick={() => spotifyActions.setSelectedTrack(track)}
+      onClick={handleClickTrack}
     >
       <div className="flex items-center ">
         <div className="flex items-center gap-4">
