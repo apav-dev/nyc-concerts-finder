@@ -1,20 +1,35 @@
+import { ComplexImageType } from "@yext/pages/components";
 import * as React from "react";
 import { createContext, Dispatch, useEffect, useReducer } from "react";
+import { refreshAuthToken } from "../api/spotify";
 import { SpotifyAuth } from "../types/auth";
-import { SpotifyTrack } from "../types/spotify";
+import { SpotifyArtist, SpotifyTrack } from "../types/spotify";
+
+export type Artist = {
+  name: string;
+  photoGallery: ComplexImageType[];
+  description?: string;
+  c_spotifyId?: string;
+};
 
 export type SpotifyState = {
   authData?: SpotifyAuth;
   serverUrl?: string;
   selectedTrack?: SpotifyTrack;
-  artistTracks?: Record<string, SpotifyTrack[]>; // artistId: SpotifyTrack[]
+  selectedArtist?: SpotifyArtist;
+  tracks?: SpotifyTrack[]; // artistId: SpotifyTrack[]
+  isPaused?: boolean;
+  artistDataLoading?: boolean;
 };
 
 export enum SpotifyActionTypes {
   SetSpotifyAuth,
   SetServerUrl,
   SetSelectedTrack,
-  SetArtistTracks,
+  SetSelectedArtist,
+  SetTracks,
+  SetPaused,
+  ToggleArtistDataLoading,
 }
 
 export interface SetSpotifyAuth {
@@ -31,16 +46,34 @@ export interface SetSelectedTrack {
   payload: SpotifyTrack;
 }
 
-export interface SetArtistTracks {
-  type: SpotifyActionTypes.SetArtistTracks;
-  payload: Record<string, SpotifyTrack[]>;
+export interface SetTrack {
+  type: SpotifyActionTypes.SetTracks;
+  payload: SpotifyTrack[];
+}
+
+export interface SetSelectedArtist {
+  type: SpotifyActionTypes.SetSelectedArtist;
+  payload: SpotifyArtist;
+}
+
+export interface SetPaused {
+  type: SpotifyActionTypes.SetPaused;
+  payload: boolean;
+}
+
+export interface ToggleArtistDataLoading {
+  type: SpotifyActionTypes.ToggleArtistDataLoading;
+  payload: boolean;
 }
 
 export type SpotifyActions =
   | SetSpotifyAuth
   | SetServerUrl
   | SetSelectedTrack
-  | SetArtistTracks;
+  | SetSelectedArtist
+  | SetTrack
+  | SetPaused
+  | ToggleArtistDataLoading;
 
 export const authReducer = (
   state: SpotifyState,
@@ -53,8 +86,14 @@ export const authReducer = (
       return { ...state, serverUrl: action.payload };
     case SpotifyActionTypes.SetSelectedTrack:
       return { ...state, selectedTrack: action.payload };
-    case SpotifyActionTypes.SetArtistTracks:
-      return { ...state, artistTracks: action.payload };
+    case SpotifyActionTypes.SetTracks:
+      return { ...state, tracks: action.payload };
+    case SpotifyActionTypes.SetSelectedArtist:
+      return { ...state, selectedArtist: action.payload };
+    case SpotifyActionTypes.SetPaused:
+      return { ...state, isPaused: action.payload };
+    case SpotifyActionTypes.ToggleArtistDataLoading:
+      return { ...state, artistDataLoading: action.payload };
     default:
       return state;
   }
@@ -88,7 +127,9 @@ export const login = () => {
 };
 
 export const SpotifyProvider = ({ children, domain }: ProviderProps) => {
-  const [spotifyState, dispatch] = useReducer(authReducer, {});
+  const [spotifyState, dispatch] = useReducer(authReducer, {
+    artistDataLoading: false,
+  });
 
   // TODO: save authData to HttpOnly cookie instead of local storage
   useEffect(() => {
@@ -105,7 +146,18 @@ export const SpotifyProvider = ({ children, domain }: ProviderProps) => {
         localStorage.setItem("tokenData", JSON.stringify(authData));
       }
     } else {
-      authData = JSON.parse(tokenStr);
+      authData = JSON.parse(tokenStr) as SpotifyAuth;
+      // if it has been more than 60 minutes since the last refresh, refresh the token
+      if (new Date().getTime() - authData.expires_in > 60 * 60 * 1000) {
+        console.log("refreshing token");
+        refreshAuthToken(authData.refresh_token).then((newAuthData) => {
+          authData = {
+            ...newAuthData,
+            timeOfLastRefresh: new Date().toUTCString(),
+          };
+          localStorage.setItem("tokenData", JSON.stringify(authData));
+        });
+      }
     }
 
     dispatch({

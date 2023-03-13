@@ -11,9 +11,12 @@ import * as React from "react";
 import "../index.css";
 import PageLayout from "../layouts/PageLayout";
 import { ComplexImageType, Image } from "@yext/pages/components";
-import ArtistSection from "../components/ArtistSection";
+import ArtistGrid from "../components/ArtistGrid";
 import MusicPlayer from "../components/MusicPlayer";
 import GlowingImage from "../components/GlowingImage";
+import { useSpotifyState } from "../spotify/useSpotifyState";
+import ArtistInfo from "../components/ArtistInfo";
+import ArtistSection from "../components/ArtistSection";
 
 export const config: TemplateConfig = {
   stream: {
@@ -65,6 +68,8 @@ const Concert: Template<TemplateRenderProps> = ({
 }: TemplateRenderProps) => {
   const { name, _site, c_datetimeUtc, c_artists, c_primaryPhoto } = document;
 
+  const spotifyState = useSpotifyState();
+
   const mainPhoto: ComplexImageType | undefined =
     c_primaryPhoto || c_artists?.[0].photoGallery?.[0];
   const venue = document.c_venue?.[0];
@@ -81,40 +86,39 @@ const Concert: Template<TemplateRenderProps> = ({
 
   return (
     <PageLayout logo={_site.c_logo}>
-      {mainPhoto && (
-        <div className="mx-auto max-w-2xl px-4 pt-4 pb-16 sm:px-6 sm:pt-8 lg:max-w-7xl lg:px-8">
-          <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
+      <div className="mx-auto max-w-2xl px-4 pt-4 pb-16 sm:px-6 sm:pt-8 lg:h-[calc(100vh-80px)] lg:max-w-7xl lg:px-8">
+        <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
+          {mainPhoto && (
             <div className="aspect-w-1 aspect-h-1 w-full">
               <GlowingImage image={mainPhoto} />
             </div>
-            <div>
-              <div className="mt-10 sm:mt-16 sm:px-0 lg:mt-0">
-                <h1 className="font-poppins text-3xl font-semibold tracking-tight text-white">
-                  {name}
-                </h1>
-              </div>
-              <div className="mt-3 font-poppins">
-                <h2 className="sr-only">Product information</h2>
-                {/* TODO: Turn into link to location page  */}
-                <p className="tracking-tight text-white">{venue?.name}</p>
-                <p className="tracking-light text-white">{formatedDate}</p>
-              </div>
-              {/* divider component */}
-              <div className="mt-10">
-                <h2 className="font-poppins text-sm font-medium uppercase tracking-wide text-gray-400">
-                  Artists
-                </h2>
-                {document.c_artists && (
-                  <div className="mt-4">
-                    <ArtistSection artists={document.c_artists} />
-                  </div>
-                )}
-              </div>
+          )}
+          <div>
+            <div className="mt-10 sm:mt-16 sm:px-0 lg:mt-0">
+              <h1 className="font-poppins text-3xl font-semibold tracking-tight text-white">
+                {name}
+              </h1>
             </div>
+            <div className="mt-3 font-poppins">
+              <h2 className="sr-only">Product information</h2>
+              {/* TODO: Turn into link to location page  */}
+              <p className="tracking-tight text-white">{venue?.name}</p>
+              <p className="tracking-light text-white">{formatedDate}</p>
+            </div>
+            {/* divider component */}
           </div>
         </div>
-      )}
-      <MusicPlayer />
+      </div>
+      {c_artists && <ArtistSection artists={c_artists} />}
+      {/* <div className="mx-auto max-w-screen-2xl px-4 pt-4 pb-16 sm:px-6 sm:pt-8 lg:grid lg:h-screen lg:min-h-screen lg:grid-cols-2 lg:px-8">
+        <ArtistInfo />
+        {c_artists && (
+          <div className="mt-4">
+            <ArtistGrid artists={c_artists} />
+          </div>
+        )}
+      </div>
+      <MusicPlayer /> */}
     </PageLayout>
   );
 };

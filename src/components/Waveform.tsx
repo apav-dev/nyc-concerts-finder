@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useRef, useEffect } from "react";
+import { milliToSeconds } from "../utils/milliToSeconds";
 
 type WaveformProps = {
   waveform: number[];
@@ -82,13 +83,6 @@ function Waveform({ waveform, position, duration }: WaveformProps) {
       window.onresize = null;
     };
   }, [waveform, position]);
-
-  const milliToSeconds = (milli: number) => {
-    // convert milli to mm:ss format
-    const minutes = Math.floor(milli / 60000);
-    const seconds = ((milli % 60000) / 1000).toFixed(0);
-    return `${minutes}:${seconds.padStart(2, "0")}`;
-  };
 
   return (
     <div className="mt-4 flex h-16">
