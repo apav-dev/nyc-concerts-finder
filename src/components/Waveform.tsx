@@ -18,10 +18,6 @@ function Waveform() {
     }
   }, [trackState?.position]);
 
-  useEffect(() => {
-    console.log(position);
-  }, [position]);
-
   // function that runs every 300 ms to update the position of the track
   useEffect(() => {
     const interval = setInterval(() => {

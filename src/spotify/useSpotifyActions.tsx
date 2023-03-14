@@ -146,6 +146,7 @@ export const useSpotifyActions = () => {
     // });
   };
 
+  // TODO: modify to set token from cookie
   const checkAndRefreshToken = async () => {
     const { authData } = spotifyState;
 

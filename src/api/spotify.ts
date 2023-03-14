@@ -35,22 +35,8 @@ export const playTrack = async (
   });
 };
 
-export const refreshAuthToken = async (
-  refreshToken?: string
-): Promise<SpotifyAuth | undefined> => {
-  if (!refreshToken) {
-    return;
-  }
-
-  try {
-    const response = await fetch(
-      `http://localhost:8000/refresh?refresh_token=${refreshToken}`
-    );
-    const data = await response.json();
-    return data as SpotifyAuth;
-  } catch (e) {
-    console.log(e);
-  }
+export const refreshAuthToken = async (refreshToken: string) => {
+  await fetch(`http://localhost:8000/refresh?refresh_token=${refreshToken}`);
 };
 
 export const seekToPosition = (

@@ -71,15 +71,18 @@ router.get("/callback", async (ctx) => {
     });
 
     const authData = await authResponse.json();
-    const authDataString = JSON.stringify(authData);
+    const authDataString = JSON.stringify({
+      ...authData,
+      timeOfLastRefresh: new Date().toUTCString(),
+    });
 
     const cookieOptions = {
-      httpOnly: true,
+      httpOnly: false,
       secure: false, // No HTTPS used for local development
     };
-    ctx.cookies.set("tokenData", authDataString, cookieOptions);
+    ctx.cookies.set("spotifyTokenData", authDataString, cookieOptions);
 
-    ctx.response.redirect(state + "?tokenData=" + authDataString);
+    ctx.response.redirect(state);
   }
 });
 
@@ -114,7 +117,10 @@ router.get("/refresh", async (ctx) => {
   });
 
   const authData = await authResponse.json();
-  const authDataString = JSON.stringify(authData);
+  const authDataString = JSON.stringify({
+    ...authData,
+    timeOfLastRefresh: new Date().toUTCString(),
+  });
 
   const cookieOptions = {
     httpOnly: true,
@@ -123,7 +129,7 @@ router.get("/refresh", async (ctx) => {
 
   ctx.cookies.set("tokenData", authDataString, cookieOptions);
 
-  ctx.response.body = authDataString;
+  // ctx.response.body = authDataString;
 });
 
 // credit: https://medium.com/swlh/creating-waveforms-out-of-spotify-tracks-b22030dd442b
@@ -186,23 +192,6 @@ router.get("/waveform/:id", async (ctx) => {
     ctx.response.body = { message: "Bad Request" };
   }
 });
-
-//endpoint that tests if cors is working
-router.get("/test", (ctx) => {
-  ctx.response.body = "test";
-});
-
-// Define your 404 route
-// app.use((ctx) => {
-//   const cookieOptions = {
-//     httpOnly: true,
-//     secure: false, // No HTTPS used for local development
-//   };
-//   ctx.cookies.set("test", "value", cookieOptions);
-
-//   ctx.response.status = 200;
-//   ctx.response.body = "Test Endpoint";
-// });
 
 app.use(router.routes());
 app.use(router.allowedMethods());

@@ -4,6 +4,7 @@ import { createContext, Dispatch, useEffect, useReducer } from "react";
 import { refreshAuthToken } from "../api/spotify";
 import { SpotifyAuth } from "../types/auth";
 import { SpotifyArtist, SpotifyTrack } from "../types/spotify";
+import Cookies from "js-cookie";
 
 export type Artist = {
   name: string;
@@ -146,6 +147,7 @@ type ProviderProps = {
   children: React.ReactNode;
 };
 
+// TODO: Move to SpotifyActions
 export const login = () => {
   const originalUrl = window.location.href;
   const baseUrl = new URL(originalUrl).origin;
@@ -168,48 +170,31 @@ export const SpotifyProvider = ({ children, domain }: ProviderProps) => {
     artistDataLoading: false,
   });
 
-  // TODO: save authData to HttpOnly cookie instead of local storage
   useEffect(() => {
-    let tokenStr = localStorage.getItem("tokenData");
-    let authData = null;
-    if (!tokenStr) {
-      const urlParams = new URLSearchParams(window.location.search);
-      tokenStr = urlParams.get("tokenData");
-      if (tokenStr) {
-        authData = {
-          ...JSON.parse(tokenStr),
-          timeOfLastRefresh: new Date().toUTCString(),
-        };
-        console.log("Auth Data in checkAndRefreshToken: ", authData);
+    const authCookie = Cookies.get("spotifyTokenData");
 
-        localStorage.setItem("tokenData", JSON.stringify(authData));
-      }
-    } else {
-      authData = JSON.parse(tokenStr) as SpotifyAuth;
-      // if it has been more than 60 minutes since the last refresh, refresh the token
-      if (authData.timeOfLastRefresh) {
-        if (
-          new Date().getTime() -
-            new Date(authData.timeOfLastRefresh).getTime() >
-          60 * 60 * 1000
-        ) {
-          refreshAuthToken(authData.refresh_token).then((newAuthData) => {
-            authData = {
-              ...newAuthData,
-              timeOfLastRefresh: new Date().toUTCString(),
-            };
-            localStorage.setItem("tokenData", JSON.stringify(authData));
+    if (authCookie) {
+      let authData = JSON.parse(authCookie) as SpotifyAuth;
+
+      if (
+        new Date().getTime() - new Date(authData.timeOfLastRefresh).getTime() >
+        3_600_000
+      ) {
+        refreshAuthToken(authData.refresh_token)
+          .then((newAuthData) => {
+            authData = newAuthData;
+          })
+          .catch((err) => {
+            console.log("Error refreshing token: ", err);
           });
-        }
       }
+      dispatch({
+        type: SpotifyActionTypes.SetSpotifyAuth,
+        payload: {
+          authData,
+        },
+      });
     }
-
-    dispatch({
-      type: SpotifyActionTypes.SetSpotifyAuth,
-      payload: {
-        authData,
-      },
-    });
   }, []);
 
   useEffect(() => {

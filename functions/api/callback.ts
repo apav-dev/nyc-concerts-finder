@@ -52,13 +52,19 @@ export const main = async (argumentJson) => {
     });
 
     const authData = await authResponse.json();
-    const authDataString = JSON.stringify(authData);
-    const redirectUrlStr = `${state}?tokenData=${authDataString}`;
+    const authDataString =
+      "spotifyTokenData=" +
+      JSON.stringify({
+        ...authData,
+        timeOfLastRefresh: new Date().toUTCString(),
+      });
+    const redirectUrlStr = `${state}`;
 
     return {
       statusCode: 302,
       headers: {
         Location: redirectUrlStr,
+        "set-cookie": authDataString,
       },
       body: "",
     };

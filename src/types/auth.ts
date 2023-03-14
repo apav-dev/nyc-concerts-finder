@@ -3,6 +3,6 @@ export type SpotifyAuth = {
   token_type: string;
   scope: string;
   expires_in: number;
-  refresh_token?: string;
-  timeOfLastRefresh?: string;
+  refresh_token: string;
+  timeOfLastRefresh: string;
 };
