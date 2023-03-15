@@ -32,6 +32,9 @@ const ArtistSection = ({ artists }: ArtistSectionProps) => {
   const verticalResults = useSearchState((state) => state.vertical.results) as
     | Result<Ce_artist>[]
     | undefined;
+  const allResultsForVertical = useSearchState(
+    (state) => state.vertical.noResults?.allResultsForVertical
+  );
 
   React.useEffect(() => {
     searchActions.setStaticFilters([
@@ -51,24 +54,25 @@ const ArtistSection = ({ artists }: ArtistSectionProps) => {
   }, [searchActions]);
 
   useEffect(() => {
-    const firstResult = verticalResults?.[0]?.rawData;
+    const firstResult = verticalResults
+      ? verticalResults?.[0]?.rawData
+      : allResultsForVertical?.results?.[0]?.rawData;
     if (firstResult) {
       firstResult.c_spotifyId &&
         spotifyActions.fetchArtistAndTracks(firstResult.c_spotifyId);
     }
   }, [verticalResults]);
 
-  useEffect(() => {
-    spotifyState.tracks &&
-      spotifyActions.setSelectedTrack(spotifyState.tracks?.[0]);
-  }, [spotifyState.tracks]);
-
   return (
     <>
-      <div className="mx-auto max-w-screen-2xl px-4 pt-4 pb-16 sm:px-6 sm:pt-8 lg:grid lg:h-screen lg:min-h-screen lg:grid-cols-2 lg:px-8">
-        <div
-          className={`hidden pt-[72px] transition-opacity duration-300 lg:block`}
-        >
+      <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:grid lg:grid-cols-2 lg:px-8">
+        <div className={`hidden pt-2 transition-opacity duration-300 lg:block`}>
+          <h2
+            className="pt-2 font-bowlby text-3xl font-bold text-pink-600"
+            style={{ fontSize: "48px", lineHeight: 1 }}
+          >
+            Lineup
+          </h2>
           <div>
             <div className="aspect-w-1 aspect-h-1 mt-4 w-full">
               <img
@@ -88,16 +92,16 @@ const ArtistSection = ({ artists }: ArtistSectionProps) => {
         {artists && (
           <div className="mt-4">
             <div className="flex justify-end px-16">
-              <div className="w-96">
+              <div className="w-96 pt-2">
                 <SearchBar />
               </div>
             </div>
-            <div className="px-16">
+            <div className="h-full px-16">
               <VerticalResults<Ce_artist>
                 CardComponent={ArtistCard}
                 customCssClasses={{
                   verticalResultsContainer:
-                    "grid grid-flow-col grid-cols-2 grid-rows-4 gap-2 sm:h-[calc(100vh-192px)]",
+                    "grid grid-flow-col grid-cols-2 grid-rows-4 gap-2 h-[937px] ",
                 }}
               />
             </div>

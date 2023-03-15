@@ -11,10 +11,16 @@ const GlowingImage = ({ image }: GlowingImageProps) => {
       <Image
         className="border-[inherit] absolute z-0 blur-lg saturate-200 before:inset-0"
         image={image}
+        layout="fixed"
+        width={500}
+        height={728}
       />
       <Image
         className="z-10 h-full w-full scale-[.98] rounded-[inherit] object-cover object-center"
         image={image}
+        layout="fixed"
+        width={500}
+        height={728}
       />
     </div>
   );

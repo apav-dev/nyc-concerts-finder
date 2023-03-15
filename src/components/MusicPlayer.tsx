@@ -108,7 +108,7 @@ const MusicPlayer = ({ token }: MusicPlayerProps) => {
     <div
       className={twMerge(
         `fixed bottom-0 left-0 h-0 w-full overflow-hidden bg-gradient-to-r from-gray-900 to-gray-600 shadow-2xl shadow-white transition-all duration-300`,
-        spotifyState.selectedTrack && "h-16 lg:h-20"
+        spotifyState.selectedTrack && "h-16 lg:h-[72px]"
       )}
     >
       {trackState && <TrackProgressBar />}

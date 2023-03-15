@@ -6,6 +6,9 @@ module.exports = {
     extend: {
       fontFamily: {
         poppins: ["Poppins", "sans-serif"],
+        bangers: ["Bangers", "cursive"],
+        bowlby: ["Bowlby", "cursive"],
+        roboto: ["Roboto", "sans-serif"],
       },
     },
   },

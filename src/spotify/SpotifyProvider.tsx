@@ -113,7 +113,7 @@ export const authReducer = (
 ): SpotifyState => {
   switch (action.type) {
     case SpotifyActionTypes.SetSpotifyAuth:
-      return action.payload;
+      return { ...state, authData: action.payload.authData };
     case SpotifyActionTypes.SetServerUrl:
       return { ...state, serverUrl: action.payload };
     case SpotifyActionTypes.SetSelectedTrack:
@@ -147,47 +147,34 @@ type ProviderProps = {
   children: React.ReactNode;
 };
 
-// TODO: Move to SpotifyActions
-export const login = () => {
-  const originalUrl = window.location.href;
-  const baseUrl = new URL(originalUrl).origin;
-
-  if (baseUrl.includes("localhost")) {
-    const state = baseUrl + "/" + originalUrl.substring(baseUrl.length + 1);
-    const newUrl = new URL(`http://localhost:8000/login`);
-    newUrl.searchParams.set("state", state);
-    window.location.href = newUrl.href;
-  } else {
-    const state = originalUrl.substring(baseUrl.length + 1);
-    const newUrl = new URL(`${baseUrl}/login`);
-    newUrl.searchParams.set("state", state);
-    window.location.href = newUrl.href;
-  }
-};
-
 export const SpotifyProvider = ({ children, domain }: ProviderProps) => {
   const [spotifyState, dispatch] = useReducer(authReducer, {
     artistDataLoading: false,
   });
 
   useEffect(() => {
-    const authCookie = Cookies.get("spotifyTokenData");
-
+    let authCookie = Cookies.get("spotifyTokenData");
+    const spotifyRefreshToken = localStorage.getItem("spotify_refresh_token");
+    let authData: SpotifyAuth | undefined;
     if (authCookie) {
-      let authData = JSON.parse(authCookie) as SpotifyAuth;
+      authData = JSON.parse(authCookie) as SpotifyAuth;
+      localStorage.setItem("spotify_refresh_token", authData.refresh_token);
+    } else if (spotifyRefreshToken) {
+      try {
+        refreshAuthToken(spotifyRefreshToken).then(() => {
+          authCookie = Cookies.get("spotifyTokenData");
+          debugger;
 
-      if (
-        new Date().getTime() - new Date(authData.timeOfLastRefresh).getTime() >
-        3_600_000
-      ) {
-        refreshAuthToken(authData.refresh_token)
-          .then((newAuthData) => {
-            authData = newAuthData;
-          })
-          .catch((err) => {
-            console.log("Error refreshing token: ", err);
-          });
+          if (authCookie) {
+            authData = JSON.parse(authCookie) as SpotifyAuth;
+          }
+        });
+      } catch (e) {
+        console.log(`Error refreshing auth token: ${e}`);
       }
+    }
+
+    if (authData) {
       dispatch({
         type: SpotifyActionTypes.SetSpotifyAuth,
         payload: {

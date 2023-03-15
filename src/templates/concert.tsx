@@ -10,11 +10,12 @@ import {
 import * as React from "react";
 import "../index.css";
 import PageLayout from "../layouts/PageLayout";
-import { ComplexImageType } from "@yext/pages/components";
-
+import { ComplexImageType, Address, Image } from "@yext/pages/components";
 import GlowingImage from "../components/GlowingImage";
 import { useSpotifyState } from "../spotify/useSpotifyState";
 import ArtistSection from "../components/ArtistSection";
+import LabeledDivider from "../components/LabeledDivider";
+import { useRef } from "react";
 
 export const config: TemplateConfig = {
   stream: {
@@ -22,14 +23,15 @@ export const config: TemplateConfig = {
     fields: [
       "id",
       "name",
+      "description",
+      "c_primaryPhoto",
       "c_datetimeUtc",
+      "slug",
       "c_venue.name",
       "c_venue.address",
       "c_artists.name",
       "c_artists.photoGallery",
       "c_artists.c_spotifyId",
-      "c_primaryPhoto",
-      "slug",
     ],
     filter: {
       entityTypes: ["ce_concert"],
@@ -64,50 +66,125 @@ const Concert: Template<TemplateRenderProps> = ({
   path,
   document,
 }: TemplateRenderProps) => {
-  const { name, _site, c_datetimeUtc, c_artists, c_primaryPhoto } = document;
+  const { name, _site, c_datetimeUtc, c_artists, c_primaryPhoto, description } =
+    document;
 
-  const spotifyState = useSpotifyState();
+  const artistSectionRef = useRef<HTMLDivElement>(null);
 
   const mainPhoto: ComplexImageType | undefined =
     c_primaryPhoto || c_artists?.[0].photoGallery?.[0];
   const venue = document.c_venue?.[0];
 
-  // c_datetimeUtc is a string in the format "2023-03-02T01:00:00". Convert to string in the form of "March 2, 2023 at 1:00 AM" but convert from utc to local time
-  const formatedDate = new Date(c_datetimeUtc).toLocaleString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    timeZoneName: "short",
-  });
+  // c_datetimeUtc is a string in the format "2023-03-02T01:00:00". Convert to string in the form of "03.02.2023"
+  const date = c_datetimeUtc
+    ? new Date(c_datetimeUtc)
+        .toLocaleDateString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+        })
+        .replaceAll("/", ".")
+    : undefined;
+
+  const handleLineupClick = () => {
+    artistSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
+    // TODO: scroll to lineup search
     <PageLayout logo={_site.c_logo}>
-      <div className="mx-auto max-w-2xl px-4 pt-4 pb-20 sm:px-6 sm:pt-8 lg:h-[calc(100vh-80px)] lg:max-w-7xl lg:px-8">
-        <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
-          {mainPhoto && (
-            <div className="aspect-w-1 aspect-h-1 w-full">
-              <GlowingImage image={mainPhoto} />
+      <div className="pb-20">
+        <div className="mx-auto max-w-2xl  px-4 py-4 sm:px-6 sm:pt-8 lg:h-[calc(100vh-80px)] lg:max-w-7xl lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 lg:items-start lg:gap-x-8">
+            {mainPhoto && (
+              <div className="place-self-center	">
+                <GlowingImage image={mainPhoto} />
+              </div>
+            )}
+            <div>
+              <div className="mt-10 sm:mt-16 sm:px-0 lg:mt-0">
+                <h1
+                  className="font-bowlby font-semibold tracking-tight text-pink-600 "
+                  style={{ fontSize: "48px", lineHeight: 1 }}
+                >
+                  {name}
+                </h1>
+                <h2
+                  className="font-bowlby text-white"
+                  style={{ fontSize: "24px", lineHeight: "32px" }}
+                >
+                  {date}
+                </h2>
+                {/* TODO: date and CTA */}
+              </div>
+              <div className="mt-6 space-y-8 font-poppins">
+                {/* TODO: only include fields if they are valid */}
+                <div>
+                  <LabeledDivider label="About" />
+                  <p className="px-2 py-2 font-roboto text-white">
+                    {description}
+                  </p>
+                </div>
+                <div>
+                  <LabeledDivider label="Venue" />
+                  <div className="px-2 py-2">
+                    <p className="tracking-tight text-white">{venue?.name}</p>
+                    <Address
+                      className="font-roboto text-white"
+                      address={venue?.address}
+                      lines={[["line1"], ["city", "region", "postalCode"]]}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <LabeledDivider label="Headliners" />
+                  <div>
+                    <ul role="list">
+                      {c_artists?.slice(0, 3).map((artist) => (
+                        <li
+                          key={`featured_artist_${artist.name}`}
+                          className="py-2"
+                        >
+                          <div className="flex space-x-3">
+                            {artist.photoGallery?.[0] && (
+                              <Image
+                                className="h-6 w-6 rounded-full"
+                                image={artist.photoGallery[0]}
+                                layout="fixed"
+                                width={48}
+                                height={48}
+                              />
+                            )}
+                            <div className="flex items-center space-y-1">
+                              <h3 className="font-poppins text-sm font-medium text-white">
+                                {artist.name}
+                              </h3>
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                    {/* rounded button that says "Explore the Full Lineup" */}
+                    <button
+                      className="mt-4 flex justify-center"
+                      onClick={handleLineupClick}
+                    >
+                      <p className="inline-flex items-center rounded-md border border-transparent bg-pink-600 px-4 py-2 font-bowlby text-sm font-medium text-white shadow-sm hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2">
+                        Explore the Full Lineup
+                      </p>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
-          <div>
-            <div className="mt-10 sm:mt-16 sm:px-0 lg:mt-0">
-              <h1 className="font-poppins text-3xl font-semibold tracking-tight text-white">
-                {name}
-              </h1>
-            </div>
-            <div className="mt-3 font-poppins">
-              <h2 className="sr-only">Product information</h2>
-              {/* TODO: Turn into link to location page  */}
-              <p className="tracking-tight text-white">{venue?.name}</p>
-              <p className="tracking-light text-white">{formatedDate}</p>
-            </div>
-            {/* divider component */}
           </div>
         </div>
+        {c_artists && (
+          <div ref={artistSectionRef}>
+            <ArtistSection artists={c_artists} concertName={name} />
+          </div>
+        )}
       </div>
-      {c_artists && <ArtistSection artists={c_artists} concertName={name} />}
     </PageLayout>
   );
 };

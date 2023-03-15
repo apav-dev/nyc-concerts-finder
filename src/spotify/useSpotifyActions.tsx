@@ -7,9 +7,29 @@ import {
   TrackState,
 } from "./SpotifyProvider";
 import { getTopTracks, refreshAuthToken } from "../api/spotify";
+import Cookies from "js-cookie";
+import { SpotifyAuth } from "../types/auth";
 
 export const useSpotifyActions = () => {
   const { dispatch, spotifyState } = useContext(SpotifyContext);
+
+  // TODO: use fetch
+  const login = () => {
+    const originalUrl = window.location.href;
+    const baseUrl = new URL(originalUrl).origin;
+
+    if (baseUrl.includes("localhost")) {
+      const state = baseUrl + "/" + originalUrl.substring(baseUrl.length + 1);
+      const newUrl = new URL(`http://localhost:8000/login`);
+      newUrl.searchParams.set("state", state);
+      window.location.href = newUrl.href;
+    } else {
+      const state = originalUrl.substring(baseUrl.length + 1);
+      const newUrl = new URL(`${baseUrl}/login`);
+      newUrl.searchParams.set("state", state);
+      window.location.href = newUrl.href;
+    }
+  };
 
   const setSpotifyAuth = (payload: SpotifyState) => {
     return dispatch({ type: SpotifyActionTypes.SetSpotifyAuth, payload });
@@ -124,62 +144,30 @@ export const useSpotifyActions = () => {
         },
       });
     }
-
-    // use Promise.all to fetch the waveforms for each track
-    // const trackWaveforms = await Promise.all(
-    //   artistTracks.map(async (track) => {
-    //     const waveform = await fetch(
-    //       `http://localhost:8000/waveform/${track.id}?token=${authData?.access_token}`,
-    //       {
-    //         headers: {
-    //           "Content-Type": "application/json",
-    //         },
-    //       }
-    //     ).then((res) => res.json());
-    //     return waveform;
-    //   })
-    // );
-
-    // set the waveforms on the tracks
-    // artistTracks.forEach((track, index) => {
-    //   track.waveform = trackWaveforms[index];
-    // });
   };
 
-  // TODO: modify to set token from cookie
   const checkAndRefreshToken = async () => {
-    const { authData } = spotifyState;
+    // check if spotifyTokenData is still a cookie
+    const spotifyTokenData = Cookies.get("spotifyTokenData");
 
-    if (!authData?.timeOfLastRefresh) {
-      console.warn("No timeOfLastRefresh in authState");
-      return;
-    }
+    if (!spotifyTokenData) {
+      // get the refresh token from local storage
+      const refreshToken = localStorage.getItem("spotify_refresh_token");
 
-    const timeSinceLastRefresh =
-      new Date().getTime() - new Date(authData.timeOfLastRefresh).getTime();
+      if (refreshToken) {
+        await refreshAuthToken(refreshToken);
 
-    if (timeSinceLastRefresh > authData.expires_in * 1000) {
-      const refreshedAuthData = await refreshAuthToken(authData.refresh_token);
-      if (refreshedAuthData) {
-        const timeOfLastRefresh = new Date().toUTCString();
-        console.log("Auth Data in checkAndRefreshToken: ", refreshedAuthData);
+        // get the spotifyTokenData from the cookie
+        const newSpotifyTokenData = Cookies.get("spotifyTokenData");
 
-        localStorage.setItem(
-          "authData",
-          JSON.stringify({
-            ...refreshedAuthData,
-            timeOfLastRefresh,
-          })
-        );
-        setSpotifyAuth({
-          ...spotifyState,
-          authData: {
-            ...refreshedAuthData,
-            timeOfLastRefresh,
-          },
-        });
-      } else {
-        console.warn("refreshedAuthData is null");
+        if (newSpotifyTokenData) {
+          const newAuthData: SpotifyAuth = JSON.parse(newSpotifyTokenData);
+
+          setSpotifyAuth({
+            ...spotifyState,
+            authData: newAuthData,
+          });
+        }
       }
     }
   };
@@ -235,6 +223,7 @@ export const useSpotifyActions = () => {
   };
 
   return {
+    login,
     setSpotifyAuth,
     setServerUrl,
     setSelectedTrack,

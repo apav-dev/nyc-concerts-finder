@@ -4,16 +4,7 @@ import { SpotifyTrack } from "../types/spotify";
 import { useSpotifyState } from "../spotify/useSpotifyState";
 import { milliToSeconds } from "../utils/milliToSeconds";
 import { useSpotifyActions } from "../spotify/useSpotifyActions";
-
-const people = [
-  {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.com",
-    role: "Member",
-  },
-  // More people...
-];
+import SpotifyLogin from "../spotify/SpotifyLogin";
 
 const TrackTable = () => {
   const spotifyActions = useSpotifyActions();
@@ -21,6 +12,7 @@ const TrackTable = () => {
   const tracks = spotifyState.tracks;
   const selectedTrack = spotifyState.selectedTrack;
   const isPaused = spotifyState.isPaused;
+  const authData = spotifyState.authData;
 
   const getSmallestImage = (
     images: { url: string; height: number; width: number }[]
@@ -35,12 +27,11 @@ const TrackTable = () => {
   };
 
   const handleClickTrack = (track: SpotifyTrack) => {
-    console.log("clicked track");
     spotifyActions.setSelectedTrack(track);
   };
 
-  return (
-    <div className="l">
+  return authData ? (
+    <div>
       <div className="mt-4 flow-root">
         <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -130,6 +121,8 @@ const TrackTable = () => {
         </div>
       </div>
     </div>
+  ) : (
+    <SpotifyLogin />
   );
 };
 
