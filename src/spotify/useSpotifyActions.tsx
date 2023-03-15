@@ -126,8 +126,13 @@ export const useSpotifyActions = () => {
 
     const { authData, selectedTrack } = spotifyState;
 
+    const domain = window.location.origin.includes("localhost")
+      ? "http://localhost:8000"
+      : "";
+
+    // TODO: find way to proxy this request
     const waveform = await fetch(
-      `http://localhost:8000/waveform/${trackId}?token=${authData?.access_token}`,
+      `${domain}/waveform/${trackId}?token=${authData?.access_token}`,
       {
         headers: {
           "Content-Type": "application/json",

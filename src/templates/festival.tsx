@@ -12,14 +12,13 @@ import "../index.css";
 import PageLayout from "../layouts/PageLayout";
 import { ComplexImageType, Address, Image } from "@yext/pages/components";
 import GlowingImage from "../components/GlowingImage";
-import { useSpotifyState } from "../spotify/useSpotifyState";
 import ArtistSection from "../components/ArtistSection";
 import LabeledDivider from "../components/LabeledDivider";
 import { useRef } from "react";
 
 export const config: TemplateConfig = {
   stream: {
-    $id: "concerts",
+    $id: "music_festivals",
     fields: [
       "id",
       "name",
@@ -34,7 +33,7 @@ export const config: TemplateConfig = {
       "c_artists.c_spotifyId",
     ],
     filter: {
-      entityTypes: ["ce_concert"],
+      entityTypes: ["ce_musicFestival"],
     },
     // The entity language profiles that documents will be generated for.
     localization: {
@@ -61,7 +60,7 @@ export const getHeadConfig: GetHeadConfig<TemplateRenderProps> = ({
 };
 
 // TODO: strongly type everything
-const Concert: Template<TemplateRenderProps> = ({
+const MusicFestival: Template<TemplateRenderProps> = ({
   relativePrefixToRoot,
   path,
   document,
@@ -91,7 +90,6 @@ const Concert: Template<TemplateRenderProps> = ({
   };
 
   return (
-    // TODO: scroll to lineup search
     <PageLayout logo={_site.c_logo}>
       <div className="pb-20">
         <div className="mx-auto max-w-2xl  px-4 py-4 sm:px-6 sm:pt-8 lg:h-[calc(100vh-80px)] lg:max-w-7xl lg:px-8">
@@ -115,7 +113,6 @@ const Concert: Template<TemplateRenderProps> = ({
                 >
                   {date}
                 </h2>
-                {/* TODO: date and CTA */}
               </div>
               <div className="mt-6 space-y-8 font-poppins">
                 {/* TODO: only include fields if they are valid */}
@@ -181,7 +178,7 @@ const Concert: Template<TemplateRenderProps> = ({
         </div>
         {c_artists && (
           <div ref={artistSectionRef}>
-            <ArtistSection artists={c_artists} concertName={name} />
+            <ArtistSection artists={c_artists} festivalName={name} />
           </div>
         )}
       </div>
@@ -189,4 +186,4 @@ const Concert: Template<TemplateRenderProps> = ({
   );
 };
 
-export default Concert;
+export default MusicFestival;

@@ -17,10 +17,10 @@ import ArtistCard from "./ArtistCard";
 
 type ArtistSectionProps = {
   artists: Artist[];
-  concertName?: string;
+  festivalName?: string;
 };
 
-const ArtistSection = ({ artists }: ArtistSectionProps) => {
+const ArtistSection = ({ artists, festivalName }: ArtistSectionProps) => {
   const spotifyState = useSpotifyState();
   const spotifyActions = useSpotifyActions();
 
@@ -37,20 +37,21 @@ const ArtistSection = ({ artists }: ArtistSectionProps) => {
   );
 
   React.useEffect(() => {
-    searchActions.setStaticFilters([
-      {
-        selected: true,
-        filter: {
-          kind: "fieldValue",
-          fieldId: "c_concerts.name",
-          value:
-            "Governors Ball Music Festival (3 Day Pass) with Lizzo, Odesza, Kendrick Lamar, and more",
-          matcher: Matcher.Equals,
+    if (festivalName) {
+      searchActions.setStaticFilters([
+        {
+          selected: true,
+          filter: {
+            kind: "fieldValue",
+            fieldId: "c_festivals.name",
+            value: festivalName,
+            matcher: Matcher.Equals,
+          },
         },
-      },
-    ]);
-    searchActions.setVerticalLimit(8);
-    searchActions.executeVerticalQuery();
+      ]);
+      searchActions.setVerticalLimit(8);
+      searchActions.executeVerticalQuery();
+    }
   }, [searchActions]);
 
   useEffect(() => {
