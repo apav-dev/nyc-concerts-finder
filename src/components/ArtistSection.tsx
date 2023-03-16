@@ -14,6 +14,7 @@ import TrackTable from "./TrackTable";
 import { useSpotifyActions } from "../spotify/useSpotifyActions";
 import Ce_artist from "../types/search/artist";
 import ArtistCard from "./ArtistCard";
+import { Image, ComplexImageType } from "@yext/pages/components";
 
 type ArtistSectionProps = {
   artists: Artist[];
@@ -21,6 +22,10 @@ type ArtistSectionProps = {
 };
 
 const ArtistSection = ({ artists, festivalName }: ArtistSectionProps) => {
+  const [artistImage, setArtistImage] = React.useState<
+    ComplexImageType | undefined
+  >();
+
   const spotifyState = useSpotifyState();
   const spotifyActions = useSpotifyActions();
 
@@ -32,9 +37,6 @@ const ArtistSection = ({ artists, festivalName }: ArtistSectionProps) => {
   const verticalResults = useSearchState((state) => state.vertical.results) as
     | Result<Ce_artist>[]
     | undefined;
-  const allResultsForVertical = useSearchState(
-    (state) => state.vertical.noResults?.allResultsForVertical
-  );
 
   React.useEffect(() => {
     if (festivalName) {
@@ -55,14 +57,23 @@ const ArtistSection = ({ artists, festivalName }: ArtistSectionProps) => {
   }, [searchActions]);
 
   useEffect(() => {
-    const firstResult = verticalResults
-      ? verticalResults?.[0]?.rawData
-      : allResultsForVertical?.results?.[0]?.rawData;
+    const firstResult = verticalResults?.[0]?.rawData;
     if (firstResult) {
       firstResult.c_spotifyId &&
         spotifyActions.fetchArtistAndTracks(firstResult.c_spotifyId);
     }
+    setArtistImage(firstResult?.photoGallery?.[0]);
   }, [verticalResults]);
+
+  // when the artist changes, find the image in the vertical results and set it
+  useEffect(() => {
+    if (artist) {
+      const artistResult = verticalResults?.find(
+        (result) => result.rawData.c_spotifyId?.split(":")[2] === artist.id
+      );
+      setArtistImage(artistResult?.rawData?.photoGallery?.[0]);
+    }
+  }, [artist]);
 
   return (
     <>
@@ -75,13 +86,17 @@ const ArtistSection = ({ artists, festivalName }: ArtistSectionProps) => {
             Lineup
           </h2>
           <div>
-            <div className="aspect-w-1 aspect-h-1 mt-4 w-full">
-              <img
-                className="h-[400px] w-full rounded-lg object-cover"
-                src={spotifyState.selectedArtist?.images?.[0].url ?? ""}
-                alt=""
-              />
-            </div>
+            {artistImage && (
+              <div className="aspect-w-1 aspect-h-1 mt-4 w-full">
+                <Image
+                  className=" rounded-lg object-cover"
+                  image={artistImage}
+                  layout="fixed"
+                  width={736}
+                  height={400}
+                />
+              </div>
+            )}
             <div className="py-4">
               <h3 className="font-poppins text-4xl font-semibold text-white">
                 {artist?.name}
