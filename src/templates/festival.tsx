@@ -60,6 +60,10 @@ export const getHeadConfig: GetHeadConfig<TemplateRenderProps> = ({
   };
 };
 
+// export const transformProps: TransformProps<TemplateProps> = async (data) => {
+// runs at build time to fetch data from external APIs
+// };
+
 // TODO: strongly type everything
 const MusicFestival: Template<TemplateRenderProps> = ({
   relativePrefixToRoot,
