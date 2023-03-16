@@ -49,8 +49,6 @@ export const getPath: GetPath<TemplateProps> = ({ document }) => {
 };
 
 export const getHeadConfig: GetHeadConfig<TemplateRenderProps> = ({
-  relativePrefixToRoot,
-  path,
   document,
 }): HeadConfig => {
   return {
@@ -64,10 +62,7 @@ export const getHeadConfig: GetHeadConfig<TemplateRenderProps> = ({
 // runs at build time to fetch data from external APIs
 // };
 
-// TODO: strongly type everything
 const MusicFestival: Template<TemplateRenderProps> = ({
-  relativePrefixToRoot,
-  path,
   document,
 }: TemplateRenderProps) => {
   const { name, _site, c_datetimeUtc, c_artists, c_primaryPhoto, description } =
@@ -120,7 +115,6 @@ const MusicFestival: Template<TemplateRenderProps> = ({
                 </h2>
               </div>
               <div className="mt-6 space-y-8 font-poppins">
-                {/* TODO: only include fields if they are valid */}
                 <div>
                   <LabeledDivider label="About" />
                   <p className="px-2 py-2 font-roboto text-white">

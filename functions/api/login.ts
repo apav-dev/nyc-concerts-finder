@@ -7,7 +7,6 @@ const scopes = [
   "user-read-playback-state",
 ];
 
-// TODO: add proxy endpoint
 export const main = (argumentJson) => {
   const requestURL = argumentJson["requestUrl"];
   const params = new URLSearchParams(requestURL.split("?")[1]);
@@ -17,10 +16,6 @@ export const main = (argumentJson) => {
   const spotifyUrl = new URL(`https://accounts.spotify.com/authorize`);
 
   const redirect_uri = "https://adoringly-alive-calf.pgsdemo.com/callback";
-  // TODO: make this dynamic
-  // if (argumentJson["headers"]["X-Forwarded-Host"]) {
-  //   redirect_uri = `https://${argumentJson["headers"]["X-Bot-Score"]}/callback`;
-  // }
 
   let state = params.get("state");
   if (!state) {
@@ -29,7 +24,6 @@ export const main = (argumentJson) => {
 
   spotifyUrl.searchParams.append("client_id", client_id);
   spotifyUrl.searchParams.append("response_type", "code");
-  // TODO: replace with prod url
   spotifyUrl.searchParams.append("redirect_uri", redirect_uri);
   spotifyUrl.searchParams.append("scope", scopes.join(" "));
   spotifyUrl.searchParams.append("state", state);
