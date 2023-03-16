@@ -163,7 +163,6 @@ export const SpotifyProvider = ({ children, domain }: ProviderProps) => {
       try {
         refreshAuthToken(spotifyRefreshToken).then(() => {
           authCookie = Cookies.get("spotifyTokenData");
-          debugger;
 
           if (authCookie) {
             authData = JSON.parse(authCookie) as SpotifyAuth;

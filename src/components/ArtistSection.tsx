@@ -102,7 +102,7 @@ const ArtistSection = ({ artists, festivalName }: ArtistSectionProps) => {
                 CardComponent={ArtistCard}
                 customCssClasses={{
                   verticalResultsContainer:
-                    "grid grid-flow-col grid-cols-2 grid-rows-4 gap-2 h-[937px] ",
+                    "grid grid-flow-col grid-cols-2 grid-rows-4 gap-2 h-[937px] overflow-hidden",
                 }}
               />
             </div>

@@ -16,6 +16,7 @@ import ArtistSection from "../components/ArtistSection";
 import LabeledDivider from "../components/LabeledDivider";
 import { useRef } from "react";
 
+// Graph QL-like interface
 export const config: TemplateConfig = {
   stream: {
     $id: "music_festivals",
