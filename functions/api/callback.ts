@@ -58,14 +58,11 @@ export const main = async (argumentJson) => {
         ...authData,
         timeOfLastRefresh: new Date().toUTCString(),
       });
-    const redirectUrlStr = `${state}`;
-
-    console.log("redirectUrlStr", redirectUrlStr )
 
     return {
       statusCode: 302,
       headers: {
-        Location: redirectUrlStr,
+        Location: state,
         "set-cookie": authDataString,
       },
       body: "",
