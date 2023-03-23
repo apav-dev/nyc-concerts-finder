@@ -60,6 +60,8 @@ export const main = async (argumentJson) => {
       });
     const redirectUrlStr = `${state}`;
 
+    console.log("redirectUrlStr", redirectUrlStr )
+
     return {
       statusCode: 302,
       headers: {
