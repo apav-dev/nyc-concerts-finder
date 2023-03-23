@@ -27,7 +27,8 @@ export const main = async (argumentJson) => {
       form: {
         code: code,
         // TODO: make this dynamic
-        redirect_uri: "https://adoringly-alive-calf.pgsdemo.com/callback",
+        redirect_uri:
+          "https://worriedly-concerned-anteater.pgsdemo.com/callback",
         grant_type: "authorization_code",
       },
       headers: {
