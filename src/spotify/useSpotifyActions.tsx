@@ -132,7 +132,7 @@ export const useSpotifyActions = () => {
 
     // TODO: find way to proxy this request
     const waveform = await fetch(
-      `${domain}/waveform/${trackId}?token=${authData?.access_token}`,
+      `${domain}/waveform?id=${trackId}&token=${authData?.access_token}`,
       {
         headers: {
           "Content-Type": "application/json",

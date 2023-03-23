@@ -1,11 +1,17 @@
 export const main = async (argumentJson) => {
   const requestURL = argumentJson["requestUrl"];
-  const params = new URLSearchParams(requestURL.split("?")[1]);
+  const searchParams = new URLSearchParams();
+  requestURL
+    .split("?")[1]
+    .split("&")
+    .forEach((pair) => {
+      const [key, value] = pair.split("=");
+      searchParams.append(key, value);
+    });
 
   // id is the string after the last slash in the url and before the query string
-  const id = requestURL.split("/").pop().split("?")[0];
-
-  const token = params.get("token");
+  const id = searchParams.get("id");
+  const token = searchParams.get("token");
 
   if (id === null) {
     return {
