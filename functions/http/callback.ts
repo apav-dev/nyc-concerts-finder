@@ -11,6 +11,11 @@ export const main = async (argumentJson) => {
   const state = searchParams.get("state");
   const code = searchParams.get("code");
 
+  const forwardedProto = argumentJson["headers"]["X-Forwarded-Proto"][0];
+  const forwardedHost = argumentJson["headers"]["X-Forwarded-Host"][0];
+
+  const redirect_uri = `${forwardedProto}://${forwardedHost}/callback`;
+
   if (state === null) {
     return {
       statusCode: 400,
@@ -27,8 +32,7 @@ export const main = async (argumentJson) => {
       form: {
         code: code,
         // TODO: make this dynamic
-        redirect_uri:
-          "https://worriedly-concerned-anteater.pgsdemo.com/callback",
+        redirect_uri,
         grant_type: "authorization_code",
       },
       headers: {
