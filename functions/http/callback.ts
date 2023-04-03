@@ -15,6 +15,7 @@ export const main = async (argumentJson) => {
   const forwardedHost = argumentJson["headers"]["X-Forwarded-Host"][0];
 
   const redirect_uri = `${forwardedProto}://${forwardedHost}/callback`;
+  console.log(redirect_uri);
 
   if (state === null) {
     return {
@@ -41,7 +42,7 @@ export const main = async (argumentJson) => {
           "Basic " +
           btoa(
             // TODO: hide this data
-            `2b0ff51518114cf89178f38905b05dfc:26d51b3f2950451998c7454e316851fe`
+            `${YEXT_PUBLIC_SPOTIFY_CLIENT_ID}:${YEXT_PUBLIC_SPOTIFY_CLIENT_SECRET}`
           ),
       },
       json: true,

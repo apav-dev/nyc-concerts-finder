@@ -1,4 +1,3 @@
-const client_id = "2b0ff51518114cf89178f38905b05dfc";
 const scopes = [
   "user-read-private",
   "user-read-email",
@@ -23,7 +22,7 @@ export const main = (argumentJson) => {
     state = "state not found";
   }
 
-  spotifyUrl.searchParams.append("client_id", client_id);
+  spotifyUrl.searchParams.append("client_id", YEXT_PUBLIC_SPOTIFY_CLIENT_ID);
   spotifyUrl.searchParams.append("response_type", "code");
   spotifyUrl.searchParams.append("redirect_uri", redirect_uri);
   spotifyUrl.searchParams.append("scope", scopes.join(" "));
