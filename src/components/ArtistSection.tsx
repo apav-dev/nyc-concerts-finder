@@ -4,7 +4,7 @@ import {
   useSearchActions,
   useSearchState,
 } from "@yext/search-headless-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SearchBar, VerticalResults } from "@yext/search-ui-react";
 import * as React from "react";
 import { Artist } from "../spotify/SpotifyProvider";
@@ -22,7 +22,7 @@ type ArtistSectionProps = {
 };
 
 const ArtistSection = ({ artists, festivalName }: ArtistSectionProps) => {
-  const [artistImage, setArtistImage] = React.useState<
+  const [artistImage, setArtistImage] = useState<
     ComplexImageType | undefined
   >();
 

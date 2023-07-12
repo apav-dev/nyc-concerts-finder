@@ -119,6 +119,30 @@ export const useSpotifyActions = () => {
     });
   };
 
+  const fetchWaveformsForTracksInState = async (tracks: SpotifyTrack[]) => {
+    await checkAndRefreshToken();
+
+    const { authData } = spotifyState;
+
+    const domain = window.location.origin.includes("localhost")
+      ? "http://localhost:8000"
+      : "";
+
+    const tracksAndWaveformPromises = await Promise.all(
+      tracks.map(async (track) => {
+        const waveform = await fetch(
+          `${domain}/api/tracks/${track.id}/waveform?token=${authData?.access_token}`
+        ).then((res) => res.json());
+        return { ...track, waveform: waveform.levels };
+      })
+    );
+
+    dispatch({
+      type: SpotifyActionTypes.SetTracks,
+      payload: tracksAndWaveformPromises,
+    });
+  };
+
   const fetchWaveformForTrack = async (trackId: string) => {
     await checkAndRefreshToken();
 
@@ -245,5 +269,6 @@ export const useSpotifyActions = () => {
     setPlayer,
     setDeviceId,
     setTrackState,
+    fetchWaveformsForTracksInState,
   };
 };

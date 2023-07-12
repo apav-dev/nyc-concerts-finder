@@ -4,6 +4,8 @@ import Ce_artist from "../types/search/artist";
 import { twMerge } from "tailwind-merge";
 import { useSpotifyActions } from "../spotify/useSpotifyActions";
 import { Image } from "@yext/pages/components";
+import { useState, useEffect } from "react";
+import { useSpotifyState } from "../spotify/useSpotifyState";
 
 const gridItemStyles = [
   "row-span-2 w-full",
@@ -16,12 +18,24 @@ const ArtistCard = ({ result }: CardProps<Ce_artist>) => {
   const artist = result.rawData;
   const image = artist.photoGallery?.[0];
 
+  const [hasFetchedWaveforms, setHasFetchedWaveforms] = useState(true);
+
   const spotifyActions = useSpotifyActions();
 
-  const handleArtistItemClick = () => {
+  const tracks = useSpotifyState((state) => state.tracks) ?? [];
+
+  const handleArtistItemClick = async () => {
     artist.c_spotifyId &&
-      spotifyActions.fetchArtistAndTracks(artist.c_spotifyId);
+      (await spotifyActions.fetchArtistAndTracks(artist.c_spotifyId));
+    setHasFetchedWaveforms(false);
   };
+
+  useEffect(() => {
+    if (!hasFetchedWaveforms && tracks.length > 0) {
+      spotifyActions.fetchWaveformsForTracksInState(tracks);
+      setHasFetchedWaveforms(true);
+    }
+  }, [tracks, hasFetchedWaveforms]);
 
   return (
     <div

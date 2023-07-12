@@ -64,8 +64,6 @@ const TrackTable = () => {
                     scope="col"
                     className="w-1/2 py-3.5 pl-16 text-left text-sm font-semibold text-gray-400"
                   >
-                    {/* <ClockIcon className="h-4 w-4 text-right text-gray-400" />
-                     */}
                     <p className="text-right">Runtime</p>
                   </th>
                 </tr>

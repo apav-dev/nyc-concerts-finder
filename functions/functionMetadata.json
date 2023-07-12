@@ -1,0 +1,14 @@
+{
+  "functions/http/api/callback.ts": {
+    "entrypoint": "callback"
+  },
+  "functions/http/api/login.ts": {
+    "entrypoint": "login"
+  },
+  "functions/http/api/refresh.ts": {
+    "entrypoint": "refresh"
+  },
+  "functions/http/api/tracks/{{id}}/waveform.ts": {
+    "entrypoint": "waveform"
+  }
+}
