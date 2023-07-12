@@ -178,23 +178,25 @@ export const useSpotifyActions = () => {
       const now = new Date();
       const expiresAt = new Date(spotifyAuth.expires_at);
       if (now > expiresAt) {
-        const authData = await fetch(
+        const authResp = await fetch(
           `http://localhost:8000/api/refresh?refresh_token=${spotifyAuth.refresh_token}`
         ).then((res) => res.json());
 
         const expires_at =
-          new Date().getTime() + parseInt(authData.expires_in) * 1000;
+          new Date().getTime() + parseInt(authResp.expires_in) * 1000;
+
+        const authData = {
+          access_token: authResp.access_token,
+          refresh_token: spotifyAuth.refresh_token,
+          expires_at,
+        };
 
         localStorage.setItem("spotify_auth", JSON.stringify(authData));
 
         dispatch({
           type: SpotifyActionTypes.SetSpotifyAuth,
           payload: {
-            authData: {
-              access_token: authData.access_token,
-              refresh_token: spotifyAuth.refresh_token,
-              expires_at,
-            },
+            authData,
           },
         });
       }
