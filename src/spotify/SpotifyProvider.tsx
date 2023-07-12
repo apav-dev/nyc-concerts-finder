@@ -19,7 +19,7 @@ export type TrackState = {
   updateTime: number;
 };
 
-export type SpotifyState = {
+export interface SpotifyState {
   authData?: SpotifyAuth;
   serverUrl?: string;
   selectedTrack?: SpotifyTrack;
@@ -30,7 +30,7 @@ export type SpotifyState = {
   player?: Spotify.Player;
   deviceId?: string;
   trackState?: TrackState;
-};
+}
 
 export enum SpotifyActionTypes {
   SetSpotifyAuth,
@@ -161,10 +161,13 @@ export const SpotifyProvider = ({ children, domain }: ProviderProps) => {
       const access_token = params[0].split("=")[1];
       const refresh_token = params[1].split("=")[1];
       const expires_in = params[2].split("=")[1];
+
+      const expires_at = new Date().getTime() + parseInt(expires_in) * 1000;
+
       authData = {
         access_token,
         refresh_token,
-        expires_in: parseInt(expires_in),
+        expires_at,
       };
       localStorage.setItem("spotify_auth", JSON.stringify(authData));
       window.location.hash = "";

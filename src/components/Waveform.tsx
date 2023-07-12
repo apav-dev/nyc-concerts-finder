@@ -3,14 +3,12 @@ import { useRef, useEffect, useState } from "react";
 import { useSpotifyActions } from "../spotify/useSpotifyActions";
 import { useSpotifyState } from "../spotify/useSpotifyState";
 import { milliToSeconds } from "../utils/milliToSeconds";
-import { useSearchActions } from "@yext/search-headless-react";
 
 export default function Waveform() {
   const spotifyActions = useSpotifyActions();
-  const spotifyState = useSpotifyState();
-  const searchActions = useSearchActions();
-  const track = spotifyState.selectedTrack;
-  const trackState = spotifyState.trackState;
+
+  const track = useSpotifyState((state) => state.selectedTrack);
+  const trackState = useSpotifyState((state) => state.trackState);
 
   const [position, setPosition] = useState(0);
 

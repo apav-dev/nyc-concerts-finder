@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ClockIcon, MusicalNoteIcon } from "@heroicons/react/24/solid";
+import { MusicalNoteIcon } from "@heroicons/react/24/solid";
 import { SpotifyTrack } from "../types/spotify";
 import { useSpotifyState } from "../spotify/useSpotifyState";
 import { milliToSeconds } from "../utils/milliToSeconds";
@@ -8,11 +8,11 @@ import SpotifyLogin from "../spotify/SpotifyLogin";
 
 const TrackTable = () => {
   const spotifyActions = useSpotifyActions();
-  const spotifyState = useSpotifyState();
-  const tracks = spotifyState.tracks;
-  const selectedTrack = spotifyState.selectedTrack;
-  const isPaused = spotifyState.isPaused;
-  const authData = spotifyState.authData;
+
+  const tracks = useSpotifyState((state) => state.tracks);
+  const selectedTrack = useSpotifyState((state) => state.selectedTrack);
+  const isPaused = useSpotifyState((state) => state.isPaused);
+  const authData = useSpotifyState((state) => state.authData);
 
   const getSmallestImage = (
     images: { url: string; height: number; width: number }[]
@@ -50,7 +50,7 @@ const TrackTable = () => {
 
                   <th
                     scope="col"
-                    className="w-1/2 py-3.5 pl-16 text-left text-sm font-semibold text-gray-400"
+                    className="text-wrap w-1/2 py-3.5 pl-16 text-left text-sm font-semibold text-gray-400"
                   >
                     Title
                   </th>
@@ -86,7 +86,7 @@ const TrackTable = () => {
                         </div>
                       )}
                     </td>
-                    <td className="whitespace-nowrap py-4 text-sm text-gray-500">
+                    <td className="whitespace-wrap line-clamp-2 max-w-[20rem] py-4 text-sm text-gray-500">
                       <div className="flex">
                         <img
                           className="h-12 w-12 rounded-full"

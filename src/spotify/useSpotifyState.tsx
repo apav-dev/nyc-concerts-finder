@@ -1,7 +1,11 @@
 import { useContext } from "react";
 import { SpotifyContext, SpotifyState } from "./SpotifyProvider";
 
-export const useSpotifyState = (): SpotifyState => {
-  const { spotifyState } = useContext(SpotifyContext);
-  return spotifyState;
+type Selector<TState, TResult> = (state: TState) => TResult;
+
+export const useSpotifyState = <TResult,>(
+  selector: Selector<SpotifyState, TResult>
+) => {
+  const context = useContext(SpotifyContext);
+  return selector(context.spotifyState);
 };

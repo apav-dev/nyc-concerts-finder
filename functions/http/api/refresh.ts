@@ -1,6 +1,3 @@
-const client_id = "2b0ff51518114cf89178f38905b05dfc";
-const client_secret = "26d51b3f2950451998c7454e316851fe";
-
 class Response {
   body: string;
   headers: any;
@@ -16,11 +13,16 @@ class Response {
   }
 }
 
-export const main = async (argumentJson) => {
-  const requestURL = argumentJson["requestUrl"];
-  const params = new URLSearchParams(requestURL.split("?")[1]);
+interface SpotifyAuthData {
+  access_token: string;
+  expires_in: number;
+  refresh_token: string;
+}
 
-  const refresh_token = params.get("token");
+export default async function refresh(request) {
+  const { queryParams } = request;
+
+  const refresh_token = queryParams.refresh_token;
 
   if (refresh_token === null) {
     return {
@@ -35,9 +37,12 @@ export const main = async (argumentJson) => {
       refresh_token: refresh_token,
       grant_type: "refresh_token",
     },
-    // TODO: env vars
     headers: {
-      Authorization: "Basic " + btoa(`${client_id}:${client_secret}`),
+      Authorization:
+        "Basic " +
+        btoa(
+          `${YEXT_PUBLIC_SPOTIFY_CLIENT_ID}:${YEXT_PUBLIC_SPOTIFY_CLIENT_SECRET}`
+        ),
     },
     json: true,
   };
@@ -51,16 +56,11 @@ export const main = async (argumentJson) => {
     },
   });
 
-  const authData = await authResponse.json();
-  const authDataString =
-    "spotifyTokenData=" +
-    JSON.stringify({
-      ...authData,
-      timeOfLastRefresh: new Date().toUTCString(),
-    });
+  const authData: SpotifyAuthData = await authResponse.json();
 
-  const headers = {
-    "set-cookie": authDataString,
-  };
-  return new Response("", headers, 200);
-};
+  if (authData.access_token === undefined) {
+    return new Response(JSON.stringify(authData), null, 500);
+  }
+
+  return new Response(JSON.stringify(authData), null, 200);
+}

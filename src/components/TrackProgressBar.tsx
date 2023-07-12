@@ -4,8 +4,8 @@ import { useSpotifyState } from "../spotify/useSpotifyState";
 
 export const TrackProgressBar = () => {
   const [position, setPosition] = useState(0);
-  const spotifyState = useSpotifyState();
-  const trackState = spotifyState.trackState;
+
+  const trackState = useSpotifyState((state) => state.trackState);
   const duration = trackState?.duration || 0;
 
   useEffect(() => {

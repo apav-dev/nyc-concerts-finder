@@ -1,11 +1,11 @@
 class Response {
   body: string;
-  headers: any;
+  Headers: any;
   statusCode: number;
 
   constructor(body: string, headers: any, statusCode: number) {
     this.body = body;
-    this.headers = {
+    this.Headers = {
       "Access-Control-Allow-Origin": "http://localhost:5173",
       ...headers,
     };
@@ -14,9 +14,9 @@ class Response {
 }
 
 export default async function waveform(request) {
-  const { queryParams } = request;
+  const { queryParams, pathParams } = request;
 
-  const id = queryParams.id;
+  const id = pathParams.id;
   const token = queryParams.token;
 
   if (id === null) {

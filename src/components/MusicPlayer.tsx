@@ -28,11 +28,12 @@ type MusicPlayerProps = {
 
 const MusicPlayer = ({ token }: MusicPlayerProps) => {
   const spotifyActions = useSpotifyActions();
-  const spotifyState = useSpotifyState();
-  const player = spotifyState.player;
-  const deviceId = spotifyState.deviceId;
-  const trackState = spotifyState.trackState;
-  const selectedTrack = spotifyState.selectedTrack;
+
+  const player = useSpotifyState((state) => state.player);
+  const deviceId = useSpotifyState((state) => state.deviceId);
+  const trackState = useSpotifyState((state) => state.trackState);
+  const selectedTrack = useSpotifyState((state) => state.selectedTrack);
+
   const [mobilePlayerOpen, setMobilePlayerOpen] = useState(false);
 
   useEffect(() => {
@@ -94,20 +95,20 @@ const MusicPlayer = ({ token }: MusicPlayerProps) => {
       if (trackState?.paused) {
         playTrack(token, deviceId, selectedTrack.uri, trackState.position);
       } else {
-        spotifyState.player?.pause();
+        player?.pause();
       }
     }
   };
 
   useEffect(() => {
     selectedTrack && spotifyActions.fetchWaveformForTrack(selectedTrack?.id);
-  }, [spotifyState.selectedTrack?.id]);
+  }, [selectedTrack?.id]);
 
   return (
     <div
       className={twMerge(
         `fixed bottom-0 left-0 h-0 w-full overflow-hidden bg-gradient-to-r from-gray-900 to-gray-600 shadow-2xl shadow-white transition-all duration-300`,
-        spotifyState.selectedTrack && "h-16 lg:h-[72px]"
+        selectedTrack && "h-16 lg:h-[72px]"
       )}
     >
       {trackState && <TrackProgressBar />}

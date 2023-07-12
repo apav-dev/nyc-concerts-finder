@@ -7,11 +7,11 @@ import {
   TrackState,
 } from "./SpotifyProvider";
 import { getTopTracks } from "../api/spotify";
+import { SpotifyAuth } from "../types/auth";
 
 export const useSpotifyActions = () => {
   const { dispatch, spotifyState } = useContext(SpotifyContext);
 
-  // TODO: use fetch
   const login = () => {
     const originalUrl = window.location.href;
     const baseUrl = new URL(originalUrl).origin;
@@ -42,7 +42,7 @@ export const useSpotifyActions = () => {
   };
 
   const fetchArtist = async (artistId: string) => {
-    // await checkAndRefreshToken();
+    await checkAndRefreshToken();
 
     const { authData } = spotifyState;
 
@@ -63,7 +63,7 @@ export const useSpotifyActions = () => {
   };
 
   const fetchTracksForArtist = async (artistId: string) => {
-    // await checkAndRefreshToken();
+    await checkAndRefreshToken();
 
     const { authData } = spotifyState;
 
@@ -84,7 +84,7 @@ export const useSpotifyActions = () => {
       payload: true,
     });
 
-    // await checkAndRefreshToken();
+    await checkAndRefreshToken();
 
     const { authData } = spotifyState;
 
@@ -120,7 +120,7 @@ export const useSpotifyActions = () => {
   };
 
   const fetchWaveformForTrack = async (trackId: string) => {
-    // await checkAndRefreshToken();
+    await checkAndRefreshToken();
 
     const { authData, selectedTrack } = spotifyState;
 
@@ -128,13 +128,10 @@ export const useSpotifyActions = () => {
       ? "http://localhost:8000"
       : "";
 
-    // TODO: find way to proxy this request
-    debugger;
     const waveform = await fetch(
-      `${domain}/api/waveform?id=${trackId}&token=${authData?.access_token}`
+      `${domain}/api/tracks/${trackId}/waveform?token=${authData?.access_token}`
     ).then((res) => res.json());
 
-    debugger;
     if (selectedTrack && selectedTrack.id === trackId) {
       dispatch({
         type: SpotifyActionTypes.SetSelectedTrack,
@@ -146,34 +143,46 @@ export const useSpotifyActions = () => {
     }
   };
 
-  // const checkAndRefreshToken = async () => {
-  //   // check if spotifyTokenData is still a cookie
-  //   const spotifyTokenData = Cookies.get("spotifyTokenData");
+  const checkAndRefreshToken = async () => {
+    // check local storage for spotify_auth
+    const spotifyAuthStr = localStorage.getItem("spotify_auth");
 
-  //   if (!spotifyTokenData) {
-  //     // get the refresh token from local storage
-  //     const refreshToken = localStorage.getItem("spotify_refresh_token");
+    if (spotifyAuthStr) {
+      const spotifyAuth: SpotifyAuth = JSON.parse(spotifyAuthStr);
 
-  //     if (refreshToken) {
-  //       await refreshAuthToken(refreshToken);
+      // check if token is expired
+      const now = new Date();
+      const expiresAt = new Date(spotifyAuth.expires_at);
+      if (now > expiresAt) {
+        const authData = await fetch(
+          `http://localhost:8000/api/refresh?refresh_token=${spotifyAuth.refresh_token}`
+        ).then((res) => res.json());
 
-  //       // get the spotifyTokenData from the cookie
-  //       const newSpotifyTokenData = Cookies.get("spotifyTokenData");
+        const expires_at =
+          new Date().getTime() + parseInt(authData.expires_in) * 1000;
 
-  //       if (newSpotifyTokenData) {
-  //         const newAuthData: SpotifyAuth = JSON.parse(newSpotifyTokenData);
+        localStorage.setItem("spotify_auth", JSON.stringify(authData));
 
-  //         setSpotifyAuth({
-  //           ...spotifyState,
-  //           authData: newAuthData,
-  //         });
-  //       }
-  //     }
-  //   }
-  // };
+        dispatch({
+          type: SpotifyActionTypes.SetSpotifyAuth,
+          payload: {
+            authData: {
+              access_token: authData.access_token,
+              refresh_token: spotifyAuth.refresh_token,
+              expires_at,
+            },
+          },
+        });
+      }
+    } else {
+      console.warn(
+        "no spotify auth found in local storage when trying to refresh token"
+      );
+    }
+  };
 
   const seekToPosition = async (position: number) => {
-    // await checkAndRefreshToken();
+    await checkAndRefreshToken();
 
     const { authData, deviceId, trackState } = spotifyState;
     if (trackState) {

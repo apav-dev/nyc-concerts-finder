@@ -26,11 +26,10 @@ const ArtistSection = ({ artists, festivalName }: ArtistSectionProps) => {
     ComplexImageType | undefined
   >();
 
-  const spotifyState = useSpotifyState();
   const spotifyActions = useSpotifyActions();
 
-  const artist = spotifyState.selectedArtist;
-  const auth = spotifyState.authData;
+  const artist = useSpotifyState((state) => state.selectedArtist);
+  const auth = useSpotifyState((state) => state.authData);
 
   const searchActions = useSearchActions();
 
@@ -38,7 +37,7 @@ const ArtistSection = ({ artists, festivalName }: ArtistSectionProps) => {
     | Result<Ce_artist>[]
     | undefined;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (festivalName) {
       searchActions.setStaticFilters([
         {
