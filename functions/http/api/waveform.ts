@@ -1,29 +1,29 @@
-export const main = async (argumentJson) => {
-  const requestURL = argumentJson["requestUrl"];
-  const searchParams = new URLSearchParams();
-  requestURL
-    .split("?")[1]
-    .split("&")
-    .forEach((pair) => {
-      const [key, value] = pair.split("=");
-      searchParams.append(key, value);
-    });
+class Response {
+  body: string;
+  headers: any;
+  statusCode: number;
 
-  // id is the string after the last slash in the url and before the query string
-  const id = searchParams.get("id");
-  const token = searchParams.get("token");
+  constructor(body: string, headers: any, statusCode: number) {
+    this.body = body;
+    this.headers = {
+      "Access-Control-Allow-Origin": "http://localhost:5173",
+      ...headers,
+    };
+    this.statusCode = statusCode;
+  }
+}
+
+export default async function waveform(request) {
+  const { queryParams } = request;
+
+  const id = queryParams.id;
+  const token = queryParams.token;
 
   if (id === null) {
-    return {
-      statusCode: 400,
-      body: "Invalid ID",
-    };
+    return new Response("Missing track id", null, 400);
   }
   if (token === null) {
-    return {
-      statusCode: 400,
-      body: "Invalid token",
-    };
+    return new Response("Missing auth token", null, 401);
   }
 
   const response = await fetch(
@@ -38,10 +38,7 @@ export const main = async (argumentJson) => {
   const data = (await response.json()) as SpotifyAudioAnalysis;
 
   if (data.error?.status === 401 && data.error.message) {
-    return {
-      statusCode: 401,
-      body: "Invalid ID",
-    };
+    return new Response(data.error.message, null, 401);
   } else if (response.ok) {
     const duration = data.track.duration;
 
@@ -66,17 +63,11 @@ export const main = async (argumentJson) => {
       levels.push(loudness);
     }
 
-    return {
-      statusCode: 200,
-      body: levels,
-    };
+    return new Response(JSON.stringify({ levels }), null, 200);
   } else {
-    return {
-      statusCode: 500,
-      body: "Server Error",
-    };
+    return new Response("Server Error", null, 500);
   }
-};
+}
 
 export type SpotifyAudioAnalysis = {
   meta: {

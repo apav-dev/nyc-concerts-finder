@@ -6,9 +6,7 @@ import {
   SpotifyState,
   TrackState,
 } from "./SpotifyProvider";
-import { getTopTracks, refreshAuthToken } from "../api/spotify";
-import Cookies from "js-cookie";
-import { SpotifyAuth } from "../types/auth";
+import { getTopTracks } from "../api/spotify";
 
 export const useSpotifyActions = () => {
   const { dispatch, spotifyState } = useContext(SpotifyContext);
@@ -20,12 +18,12 @@ export const useSpotifyActions = () => {
 
     if (baseUrl.includes("localhost")) {
       const state = baseUrl + "/" + originalUrl.substring(baseUrl.length + 1);
-      const newUrl = new URL(`http://localhost:8000/login`);
+      const newUrl = new URL(`http://localhost:8000/api/login`);
       newUrl.searchParams.set("state", state);
       window.location.href = newUrl.href;
     } else {
       const state = originalUrl.substring(baseUrl.length + 1);
-      const newUrl = new URL(`${baseUrl}/login`);
+      const newUrl = new URL(`${baseUrl}/api/login`);
       newUrl.searchParams.set("state", state);
       window.location.href = newUrl.href;
     }
@@ -44,7 +42,7 @@ export const useSpotifyActions = () => {
   };
 
   const fetchArtist = async (artistId: string) => {
-    await checkAndRefreshToken();
+    // await checkAndRefreshToken();
 
     const { authData } = spotifyState;
 
@@ -65,7 +63,7 @@ export const useSpotifyActions = () => {
   };
 
   const fetchTracksForArtist = async (artistId: string) => {
-    await checkAndRefreshToken();
+    // await checkAndRefreshToken();
 
     const { authData } = spotifyState;
 
@@ -86,7 +84,7 @@ export const useSpotifyActions = () => {
       payload: true,
     });
 
-    await checkAndRefreshToken();
+    // await checkAndRefreshToken();
 
     const { authData } = spotifyState;
 
@@ -122,7 +120,7 @@ export const useSpotifyActions = () => {
   };
 
   const fetchWaveformForTrack = async (trackId: string) => {
-    await checkAndRefreshToken();
+    // await checkAndRefreshToken();
 
     const { authData, selectedTrack } = spotifyState;
 
@@ -131,54 +129,51 @@ export const useSpotifyActions = () => {
       : "";
 
     // TODO: find way to proxy this request
+    debugger;
     const waveform = await fetch(
-      `${domain}/waveform?id=${trackId}&token=${authData?.access_token}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+      `${domain}/api/waveform?id=${trackId}&token=${authData?.access_token}`
     ).then((res) => res.json());
 
+    debugger;
     if (selectedTrack && selectedTrack.id === trackId) {
       dispatch({
         type: SpotifyActionTypes.SetSelectedTrack,
         payload: {
           ...selectedTrack,
-          waveform,
+          waveform: waveform.levels,
         },
       });
     }
   };
 
-  const checkAndRefreshToken = async () => {
-    // check if spotifyTokenData is still a cookie
-    const spotifyTokenData = Cookies.get("spotifyTokenData");
+  // const checkAndRefreshToken = async () => {
+  //   // check if spotifyTokenData is still a cookie
+  //   const spotifyTokenData = Cookies.get("spotifyTokenData");
 
-    if (!spotifyTokenData) {
-      // get the refresh token from local storage
-      const refreshToken = localStorage.getItem("spotify_refresh_token");
+  //   if (!spotifyTokenData) {
+  //     // get the refresh token from local storage
+  //     const refreshToken = localStorage.getItem("spotify_refresh_token");
 
-      if (refreshToken) {
-        await refreshAuthToken(refreshToken);
+  //     if (refreshToken) {
+  //       await refreshAuthToken(refreshToken);
 
-        // get the spotifyTokenData from the cookie
-        const newSpotifyTokenData = Cookies.get("spotifyTokenData");
+  //       // get the spotifyTokenData from the cookie
+  //       const newSpotifyTokenData = Cookies.get("spotifyTokenData");
 
-        if (newSpotifyTokenData) {
-          const newAuthData: SpotifyAuth = JSON.parse(newSpotifyTokenData);
+  //       if (newSpotifyTokenData) {
+  //         const newAuthData: SpotifyAuth = JSON.parse(newSpotifyTokenData);
 
-          setSpotifyAuth({
-            ...spotifyState,
-            authData: newAuthData,
-          });
-        }
-      }
-    }
-  };
+  //         setSpotifyAuth({
+  //           ...spotifyState,
+  //           authData: newAuthData,
+  //         });
+  //       }
+  //     }
+  //   }
+  // };
 
   const seekToPosition = async (position: number) => {
-    await checkAndRefreshToken();
+    // await checkAndRefreshToken();
 
     const { authData, deviceId, trackState } = spotifyState;
     if (trackState) {

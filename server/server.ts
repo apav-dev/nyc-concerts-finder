@@ -1,5 +1,9 @@
 /* eslint-disable no-var */
-import { Application, Router } from "https://deno.land/x/oak@v11.1.0/mod.ts";
+import {
+  Application,
+  Router,
+  Cookies,
+} from "https://deno.land/x/oak@v11.1.0/mod.ts";
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import { SpotifyAudioAnalysis } from "./types.ts";
 
@@ -71,16 +75,14 @@ router.get("/callback", async (ctx) => {
     });
 
     const authData = await authResponse.json();
-    const authDataString = JSON.stringify({
-      ...authData,
-      timeOfLastRefresh: new Date().toUTCString(),
-    });
+    const authDataString =
+      JSON.stringify(authData) + `; max-age=${authData.expires_in}`;
 
     const cookieOptions = {
       httpOnly: false,
       secure: false, // No HTTPS used for local development
     };
-    ctx.cookies.set("spotifyTokenData", authDataString, cookieOptions);
+    await ctx.cookies.set("spotifyTokenData", authDataString, cookieOptions);
 
     ctx.response.redirect(state);
   }
@@ -117,19 +119,17 @@ router.get("/refresh", async (ctx) => {
   });
 
   const authData = await authResponse.json();
-  const authDataString = JSON.stringify({
-    ...authData,
-    timeOfLastRefresh: new Date().toUTCString(),
-  });
+  const authDataString =
+    JSON.stringify(authData) + `; max-age=${authData.expires_in}`;
 
   const cookieOptions = {
-    httpOnly: true,
+    httpOnly: false,
     secure: false, // No HTTPS used for local development
   };
 
-  ctx.cookies.set("tokenData", authDataString, cookieOptions);
+  await ctx.cookies.set("spotifyTokenData", authDataString, cookieOptions);
 
-  // ctx.response.body = authDataString;
+  ctx.response.status = 200;
 });
 
 // credit: https://medium.com/swlh/creating-waveforms-out-of-spotify-tracks-b22030dd442b
@@ -187,7 +187,6 @@ router.get("/waveform/:id", async (ctx) => {
 
     ctx.response.body = levels;
   } else {
-    console.log("Bad Request");
     ctx.response.status = 400;
     ctx.response.body = { message: "Bad Request" };
   }

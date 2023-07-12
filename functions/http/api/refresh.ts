@@ -1,6 +1,21 @@
 const client_id = "2b0ff51518114cf89178f38905b05dfc";
 const client_secret = "26d51b3f2950451998c7454e316851fe";
 
+class Response {
+  body: string;
+  headers: any;
+  statusCode: number;
+
+  constructor(body: string, headers: any, statusCode: number) {
+    this.body = body;
+    this.headers = headers || {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "http://localhost:5173",
+    };
+    this.statusCode = statusCode;
+  }
+}
+
 export const main = async (argumentJson) => {
   const requestURL = argumentJson["requestUrl"];
   const params = new URLSearchParams(requestURL.split("?")[1]);
@@ -20,6 +35,7 @@ export const main = async (argumentJson) => {
       refresh_token: refresh_token,
       grant_type: "refresh_token",
     },
+    // TODO: env vars
     headers: {
       Authorization: "Basic " + btoa(`${client_id}:${client_secret}`),
     },
@@ -43,11 +59,8 @@ export const main = async (argumentJson) => {
       timeOfLastRefresh: new Date().toUTCString(),
     });
 
-  return {
-    statusCode: 200,
-    headers: {
-      "set-cookie": authDataString,
-    },
-    body: "",
+  const headers = {
+    "set-cookie": authDataString,
   };
+  return new Response("", headers, 200);
 };

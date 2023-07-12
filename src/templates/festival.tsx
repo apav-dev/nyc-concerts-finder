@@ -58,10 +58,6 @@ export const getHeadConfig: GetHeadConfig<TemplateRenderProps> = ({
   };
 };
 
-// export const transformProps: TransformProps<TemplateProps> = async (data) => {
-// runs at build time to fetch data from external APIs
-// };
-
 const MusicFestival: Template<TemplateRenderProps> = ({
   document,
 }: TemplateRenderProps) => {
@@ -160,7 +156,6 @@ const MusicFestival: Template<TemplateRenderProps> = ({
                         </li>
                       ))}
                     </ul>
-                    {/* rounded button that says "Explore the Full Lineup" */}
                     <button
                       className="mt-4 flex justify-center"
                       onClick={handleLineupClick}

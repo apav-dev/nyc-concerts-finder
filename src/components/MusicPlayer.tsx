@@ -1,7 +1,6 @@
 import * as React from "react";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { SpotifyContext } from "../spotify/SpotifyProvider";
 import {
   PlayIcon,
   PauseIcon,

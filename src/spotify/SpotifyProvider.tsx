@@ -4,7 +4,6 @@ import { createContext, Dispatch, useEffect, useReducer } from "react";
 import { refreshAuthToken } from "../api/spotify";
 import { SpotifyAuth } from "../types/auth";
 import { SpotifyArtist, SpotifyTrack } from "../types/spotify";
-import Cookies from "js-cookie";
 
 export type Artist = {
   name: string;
@@ -153,24 +152,24 @@ export const SpotifyProvider = ({ children, domain }: ProviderProps) => {
   });
 
   useEffect(() => {
-    let authCookie = Cookies.get("spotifyTokenData");
-    const spotifyRefreshToken = localStorage.getItem("spotify_refresh_token");
+    const localAuthData = localStorage.getItem("spotify_auth");
     let authData: SpotifyAuth | undefined;
-    if (authCookie) {
-      authData = JSON.parse(authCookie) as SpotifyAuth;
-      localStorage.setItem("spotify_refresh_token", authData.refresh_token);
-    } else if (spotifyRefreshToken) {
-      try {
-        refreshAuthToken(spotifyRefreshToken).then(() => {
-          authCookie = Cookies.get("spotifyTokenData");
-
-          if (authCookie) {
-            authData = JSON.parse(authCookie) as SpotifyAuth;
-          }
-        });
-      } catch (e) {
-        console.log(`Error refreshing auth token: ${e}`);
-      }
+    // check if there is an access_token, refresh_token, and expires_in in the url
+    if (window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      const params = hash.split("&");
+      const access_token = params[0].split("=")[1];
+      const refresh_token = params[1].split("=")[1];
+      const expires_in = params[2].split("=")[1];
+      authData = {
+        access_token,
+        refresh_token,
+        expires_in: parseInt(expires_in),
+      };
+      localStorage.setItem("spotify_auth", JSON.stringify(authData));
+      window.location.hash = "";
+    } else if (localAuthData) {
+      authData = JSON.parse(localAuthData);
     }
 
     if (authData) {

@@ -1,21 +1,19 @@
-export const main = async (argumentJson) => {
-  const requestURL = argumentJson["requestUrl"];
-  const searchParams = new URLSearchParams();
-  requestURL
-    .split("?")[1]
-    .split("&")
-    .forEach((pair) => {
-      const [key, value] = pair.split("=");
-      searchParams.append(key, value);
-    });
-  const state = searchParams.get("state");
-  const code = searchParams.get("code");
+interface SpotifyAuthData {
+  access_token: string;
+  token_type: string;
+  scope: string;
+  expires_in: number;
+  refresh_token: string;
+}
 
-  const forwardedProto = argumentJson["headers"]["X-Forwarded-Proto"][0];
-  const forwardedHost = argumentJson["headers"]["X-Forwarded-Host"][0];
+export default async function callback(request) {
+  const { queryParams } = request;
 
-  const redirect_uri = `${forwardedProto}://${forwardedHost}/callback`;
-  console.log(redirect_uri);
+  const state = queryParams.state;
+  const code = queryParams.code;
+
+  // TODO: adjust for production and for when functions run at 5173
+  const redirect_uri = `http://localhost:8000/api/callback`;
 
   if (state === null) {
     return {
@@ -37,11 +35,9 @@ export const main = async (argumentJson) => {
         grant_type: "authorization_code",
       },
       headers: {
-        // replace with env vars
         Authorization:
           "Basic " +
           btoa(
-            // TODO: hide this data
             `${YEXT_PUBLIC_SPOTIFY_CLIENT_ID}:${YEXT_PUBLIC_SPOTIFY_CLIENT_SECRET}`
           ),
       },
@@ -57,21 +53,17 @@ export const main = async (argumentJson) => {
       },
     });
 
-    const authData = await authResponse.json();
-    const authDataString =
-      "spotifyTokenData=" +
-      JSON.stringify({
-        ...authData,
-        timeOfLastRefresh: new Date().toUTCString(),
-      });
+    const authData: SpotifyAuthData = await authResponse.json();
+    const location = new URL(state);
+    // append access_token, refresh_token, and expires_in to the URL as hash params
+    location.hash = `access_token=${authData.access_token}&refresh_token=${authData.refresh_token}&expires_in=${authData.expires_in}`;
 
     return {
       statusCode: 302,
       headers: {
-        Location: state,
-        "set-cookie": authDataString,
+        Location: location.toString(),
       },
       body: "",
     };
   }
-};
+}
